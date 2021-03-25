@@ -1,0 +1,29 @@
+{
+  "name": "@atomico/router",
+  "description": "a repo to start with atomico",
+  "version": "0.0.0-beta",
+  "exports": {
+    ".": "./dest/router.js"
+  },
+  "typings": "./router.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "start": "devserver dev src --jsxImportSource atomico",
+    "build": "devserver build src/router.js dest --jsxImportSource atomico --external atomico,atomico/jsx-runtime,@atomico/kit/use-router,@atomico/kit/use-render",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@atomico/kit": "^2.3.0",
+    "atomico": "latest"
+  },
+  "devDependencies": {
+    "@devserver/build": "^0.15.5",
+    "@devserver/cli": "latest"
+  },
+  "prettier": {
+    "tabWidth": 4,
+    "singleQuote": false
+  }
+}
