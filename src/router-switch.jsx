@@ -4,7 +4,7 @@ import { useRender } from "@atomico/kit/use-render";
 
 const CACHE = new Map();
 
-function routerSwitch() {
+function routerSwitch({ transition }) {
     const [router, setRouter] = useState();
     const [request, setRequest] = useState({});
     const result = useRouter(router);
@@ -20,10 +20,9 @@ function routerSwitch() {
             if (typeof load == "string") {
                 promise = import(new URL(load, location));
             } else {
-                promise = load(params);
-                if (!(promise instanceof Promise)) {
-                    promise = Promise.resolve({ default: promise });
-                }
+                promise = Promise.resolve(load(params)).then((value) => ({
+                    default: value,
+                }));
             }
             CACHE.set(load, promise);
         }
@@ -38,9 +37,12 @@ function routerSwitch() {
                 }),
             40
         );
-        promise.then(({ default: view }) => {
+        promise.then(async ({ default: view }) => {
             // prevent loading state
             promise = null;
+            if (transition) {
+                await transition(params);
+            }
             setRequest({
                 view: typeof view == "function" ? view(params) : view,
             });
@@ -71,5 +73,9 @@ function routerSwitch() {
         </host>
     );
 }
+
+routerSwitch.props = {
+    transition: Function,
+};
 
 export const RouterSwitch = c(routerSwitch);
