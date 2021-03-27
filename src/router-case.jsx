@@ -6,7 +6,8 @@ function routerCase() {
 
 routerCase.props = {
     slot: { type: String, reflect: true, value: "router-case" },
-    path: { type: String, path: "/" },
+    path: { type: String, reflect: true, path: "/" },
+    for: { type: String, reflect: true },
     load: null,
 };
 

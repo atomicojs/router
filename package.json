@@ -1,7 +1,7 @@
 {
     "name": "@atomico/router",
     "description": "a repo to start with atomico",
-    "version": "0.1.0-beta",
+    "version": "0.1.1-beta",
     "exports": {
         ".": "./dest/router.js"
     },
@@ -15,11 +15,11 @@
         "prepare": "npm run build"
     },
     "dependencies": {
-        "@atomico/kit": "^2.3.0",
+        "@atomico/kit": "latest",
         "atomico": "latest"
     },
     "devDependencies": {
-        "@devserver/build": "^0.15.5",
+        "@devserver/build": "latest",
         "@devserver/cli": "latest"
     },
     "prettier": {
