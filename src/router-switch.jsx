@@ -21,11 +21,14 @@ function routerSwitch({ transition }) {
             if (typeof load == "string") {
                 promise = import(new URL(load, location));
             } else {
-                promise = Promise.resolve(load(params)).then((value) => ({
-                    default: value,
-                }));
+                promise = Promise.resolve(load(params));
             }
-            CACHE.set(load, promise);
+            CACHE.set(
+                load,
+                promise.then((value) =>
+                    typeof value == "object" ? value : { default: value }
+                )
+            );
         }
 
         let promise = CACHE.get(load || forId);
@@ -39,7 +42,7 @@ function routerSwitch({ transition }) {
             40
         );
 
-        promise.then(async ({ default: view, forId }) => {
+        promise.then(async ({ default: view, forId, ...data }) => {
             if (currentPath != getPath()) {
                 promise = null;
                 return;
@@ -54,6 +57,7 @@ function routerSwitch({ transition }) {
                 setRequest({
                     view: typeof view == "function" ? view(params) : view,
                     forId,
+                    data,
                 });
         });
         return () => (promise = null);
@@ -69,7 +73,7 @@ function routerSwitch({ transition }) {
     );
 
     return (
-        <host shadowDom>
+        <host shadowDom data={request.data}>
             <slot
                 name="router-case"
                 onslotchange={(ev) =>
@@ -92,6 +96,7 @@ function routerSwitch({ transition }) {
 
 routerSwitch.props = {
     transition: Function,
+    data: { type: Object, event: { type: "Data" } },
 };
 
 export const RouterSwitch = c(routerSwitch);

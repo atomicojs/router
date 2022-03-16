@@ -1,29 +1,23 @@
 {
-    "name": "@atomico/router",
-    "description": "a repo to start with atomico",
-    "version": "0.1.1-beta",
-    "exports": {
-        ".": "./dest/router.js"
-    },
-    "typings": "./router.d.ts",
-    "publishConfig": {
-        "access": "public"
-    },
-    "scripts": {
-        "start": "devserver dev src --jsxImportSource atomico",
-        "build": "devserver build src/router.js dest --jsxImportSource atomico --external atomico,atomico/jsx-runtime,@atomico/kit/use-router,@atomico/kit/use-render",
-        "prepare": "npm run build"
-    },
-    "dependencies": {
-        "@atomico/kit": "latest",
-        "atomico": "latest"
-    },
-    "devDependencies": {
-        "@devserver/build": "latest",
-        "@devserver/cli": "latest"
-    },
-    "prettier": {
-        "tabWidth": 4,
-        "singleQuote": false
-    }
+  "name": "@atomico/router",
+  "description": "a repo to start with atomico",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "test": "wtr src/**/*.test.js --node-resolve",
+    "exports": "exports src/components.js --exports --types --main components",
+    "prepublishOnly": "npm run test && npm run exports",
+    "create-component": "scaff template/component-jsx src"
+  },
+  "dependencies": {
+    "atomico": "latest"
+  },
+  "devDependencies": {
+    "@uppercod/vite-meta-url": "latest",
+    "@uppercod/vite-meta-url-load-css": "latest",
+    "vite": "latest"
+  }
 }
