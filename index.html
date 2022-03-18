@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@atomico/router</title>
+    <script type="module" src="./example/app.tsx"></script>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+      .view {
+        width: 100%;
+        height: 100vh;
+        background: black;
+        color: white;
+        display: grid;
+        place-content: center;
+        font-family: "Courier New", Courier, monospace;
+      }
+      a {
+        color: magenta;
+      }
+
+      :root {
+        --router-transition-wait: 0.5s ease all;
+        --router-transition-out: 0.5s ease all;
+        --router-transition-in: 0.5s ease all;
+        --router-transform-wait: scale(0.5) translateX(50%);
+        --router-transform-in: translateY(0%);
+        --router-transform-out: scale(0.5) translateX(-50%);
+        --router-opacity-wait: 1;
+        --router-opacity-out: 1;
+      }
+    </style>
+  </head>
+  <body></body>
+</html>
