@@ -1,7 +1,7 @@
 {
   "name": "@atomico/router",
   "description": "a repo to start with atomico",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
