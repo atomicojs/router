@@ -2,6 +2,7 @@ import {
   Props,
   c,
   css,
+  render,
   useRef,
   useMemo,
   useHost,
@@ -20,6 +21,7 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
 
   const [transition, setTransition] = useState<string>();
   const [inTransition, setInTransition] = useProp<boolean>("inTransition");
+  const [loading, setLoading] = useProp<boolean>("loading");
 
   const [map] = useState(() => new Map());
 
@@ -38,7 +40,8 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
     slotRouterCase
   );
 
-  const [currentCase] = useRouter<InstanceType<typeof RouterCase>>(router);
+  const [currentCase, id, params] =
+    useRouter<InstanceType<typeof RouterCase>>(router);
 
   let currentView = currentCase?.for || getPath();
 
@@ -48,12 +51,28 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
 
   useLayoutEffect(() => {
     if (!currentCase) return;
-
     host.before = transition;
-
-    setTransition(currentView);
+    const { load } = currentCase;
+    if (load) {
+      setLoading(true);
+      Promise.resolve(load(params as any)).then((view) => {
+        const currentView = getPath();
+        currentCase.for = currentView;
+        setLoading(false);
+        render(
+          <host>
+            <div slot={currentView} class="router-view" key={currentView}>
+              {view}
+            </div>
+          </host>,
+          host.current,
+          "router"
+        );
+      });
+    }
     setInTransition(true);
-  }, [currentView]);
+    setTransition(currentView);
+  }, [currentView, id]);
 
   const { before } = host;
 
@@ -80,12 +99,28 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
           <slot name={id}></slot>
         </section>
       ))}
+
+      {/* <section
+        part="loading"
+        ref={(node) => {
+          const set = () => {
+            node.className = loading ? "router-loading" : "";
+          };
+          transition ? requestAnimationFrame(set) : set();
+        }}
+      >
+        <slot name="loading"></slot>
+      </section> */}
     </host>
   );
 }
 
 routerSwitch.props = {
   inTransition: {
+    type: Boolean,
+    reflect: true,
+  },
+  loading: {
     type: Boolean,
     reflect: true,
   },
@@ -101,9 +136,16 @@ routerSwitch.styles = css`
     top: 0;
     width: 100%;
     height: 100%;
+  }
+  [part="view"] {
     transition: var(--router-transition-wait, 0s);
     opacity: var(--router-opacity-wait, 0);
     transform: var(--router-transform-wait);
+  }
+  [part="loading"] {
+    transition: var(--router-transition-loading-wait, 0s);
+    opacity: var(--router-opacity-loading-wait, 0);
+    transform: var(--router-transform-loading-wait);
   }
   .router-in {
     position: relative;
@@ -116,6 +158,12 @@ routerSwitch.styles = css`
     transition: var(--router-transition-out, 0s);
     opacity: var(--router-opacity-out, 0);
     transform: var(--router-transform-out);
+  }
+  .router-loading {
+    z-index: 2;
+    transition: var(--router-transition-loading-in, 0s);
+    opacity: var(--router-opacity-loading-in, 1);
+    transform: var(--router-transform-loading-in);
   }
 `;
 

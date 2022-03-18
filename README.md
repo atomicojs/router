@@ -1,21 +1,21 @@
 # @atomico/router
 
 ```jsx
-import "@atomico/router";
-
-const home = () => import("./home.jsx");
-
 function component() {
-    return (
-        <host>
-            <router-switch>
-                <router-case path="/" load={home}></router-case>
-                <router-case
-                    path="/[...notFound]"
-                    load={() => "Not Found"}
-                ></router-case>
-            </router-switch>
-        </host>
-    );
+  return (
+    <host>
+      <RouterSwitch>
+        <RouterCase path="/" for="home"></RouterCase>
+        <RouterCase
+          path="/{id}"
+          load={async (params) => {
+            const { data } = await getArticle(params.id);
+            return <Article data={data} />;
+          }}
+        ></RouterCase>
+        <MyHome slot="home" />
+      </RouterSwitch>
+    </host>
+  );
 }
 ```

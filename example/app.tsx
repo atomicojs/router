@@ -1,42 +1,34 @@
 import { render } from "atomico";
 import { RouterSwitch, RouterCase } from "../src/router";
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 render(
   <host>
-    <RouterSwitch
-      transition={async (after, before) => {
-        // if (after) {
-        //   after.animate([{ opacity: 1 }, { opacity: 0 }], {
-        //     duration: 1000,
-        //   });
-        // }
-        // const animate = before.animate(
-        //   [
-        //     // fotogramas clave
-        //     { opacity: "0" },
-        //     { transform: "1" },
-        //   ],
-        //   {
-        //     // opciones de sincronización
-        //     duration: 1000,
-        //     iterations: Infinity,
-        //   }
-        // );
-        // return animate.finished;
-      }}
-    >
+    <RouterSwitch>
       <RouterCase path="/" for="home"></RouterCase>
-      <RouterCase path="/config" for="config"></RouterCase>
-      <div class="view" slot="home">
+      <RouterCase
+        path="/{folder}"
+        load={async (params) => {
+          await delay(1000);
+          return (
+            <h1>
+              welcome! ({JSON.stringify(params)}) <a href="/">to home</a>
+            </h1>
+          );
+        }}
+      ></RouterCase>
+      <div class="router-view" slot="home">
         <h1>
-          welcome! <a href="/config">to config</a>
+          welcome!
+          <a href="/config">[to config]</a>
+          <a href="/users">[to users]</a>
+          <a href="/out">[to out]</a>
         </h1>
       </div>
-      <div class="view" slot="config">
-        <h1>
-          config! <a href="/">back home</a>
-        </h1>
-      </div>
+      {/* <div class="view" slot="loading">
+        <h1>loading...</h1>
+      </div> */}
     </RouterSwitch>
   </host>,
   document.body
