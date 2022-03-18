@@ -64,19 +64,18 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
       {Array.from(map).map(([id]) => (
         <section
           part="view"
-          ref={(node) =>
-            requestAnimationFrame(() => {
+          ref={(node) => {
+            const set = () => {
               node.className =
                 currentView === id
                   ? "router-in"
                   : before === id && inTransition
                   ? "router-out"
                   : "router-wait";
-            })
-          }
-          ontransitionend={(event) =>
-            currentView === id && setInTransition(false)
-          }
+            };
+            transition ? requestAnimationFrame(set) : set();
+          }}
+          ontransitionend={() => currentView === id && setInTransition(false)}
         >
           <slot name={id}></slot>
         </section>
