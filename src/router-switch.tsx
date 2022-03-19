@@ -29,7 +29,7 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
 
   const [transition, setTransition] = useState<string>();
   const [inTransition, setInTransition] = useProp<boolean>("inTransition");
-  const [loading, setLoading] = useProp<boolean>("loading");
+  const [loading, setLoading] = useProp<string>("loading");
   const [views] = useState(Object);
 
   const slotRouterCase =
@@ -63,7 +63,7 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
     if (load) {
       Promise.resolve(load(params as any)).then((view) => {
         const currentView = history.at(-1);
-        setLoading(false);
+        setLoading(null);
         render(
           <host>
             <div slot={currentView} class="router-view" key={currentView}>
@@ -74,7 +74,7 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
           currentView
         );
       });
-      setLoading(true);
+      setLoading(currentPath);
     }
     if (history.length > 1) setInTransition(true);
   }, [currentPath, currentCase]);
@@ -89,12 +89,16 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
           part="view"
           ref={(node) => {
             const set = () => {
-              node.className =
-                history.length - 1 === i
-                  ? "router-in"
-                  : history.length - 2 === i && inTransition
-                  ? "router-out"
-                  : "router-wait";
+              const { length } = history;
+              node.className = loading
+                ? length - 2 !== i
+                  ? "router-wait"
+                  : "router-in"
+                : length - 1 === i
+                ? "router-in"
+                : length - 2 === i && inTransition
+                ? "router-out"
+                : "router-wait";
             };
             history.length > 1 ? requestAnimationFrame(set) : set();
           }}
@@ -128,7 +132,7 @@ routerSwitch.props = {
     reflect: true,
   },
   loading: {
-    type: Boolean,
+    type: String,
     reflect: true,
   },
 };

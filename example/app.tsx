@@ -16,7 +16,7 @@ render(
       <RouterCase
         path="/{folder}"
         load={async (params) => {
-          // await delay(1000);
+          await delay(1000);
           return (
             <h1>
               welcome! ({JSON.stringify(params)}) <a href="/">to home</a>
