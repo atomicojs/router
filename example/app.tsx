@@ -17,7 +17,6 @@ render(
         path="/{folder}"
         load={async (params) => {
           // await delay(1000);
-          console.log(params);
           return (
             <h1>
               welcome! ({JSON.stringify(params)}) <a href="/">to home</a>
