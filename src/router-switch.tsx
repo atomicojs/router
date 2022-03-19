@@ -43,7 +43,7 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
   const [currentCase, id, params] =
     useRouter<InstanceType<typeof RouterCase>>(router);
 
-  let currentView = currentCase?.for || getPath();
+  let currentView = getPath();
 
   if (currentCase) map.set(currentView, currentCase);
 
@@ -72,7 +72,7 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
     }
     setInTransition(true);
     setTransition(currentView);
-  }, [currentView, id]);
+  }, [getPath(), id]);
 
   const { before } = host;
 
@@ -111,6 +111,7 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
       >
         <slot name="loading"></slot>
       </section> */}
+      <slot></slot>
     </host>
   );
 }

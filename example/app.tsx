@@ -6,11 +6,18 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 render(
   <host>
     <RouterSwitch>
+      <header class="header">
+        <a href="/">home</a>
+        <a href="/user">user</a>
+        <a href="/edit">edit</a>
+        <a href="/config">config</a>
+      </header>
       <RouterCase path="/" for="home"></RouterCase>
       <RouterCase
         path="/{folder}"
         load={async (params) => {
-          await delay(1000);
+          // await delay(1000);
+          console.log(params);
           return (
             <h1>
               welcome! ({JSON.stringify(params)}) <a href="/">to home</a>
