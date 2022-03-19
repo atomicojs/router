@@ -76,7 +76,7 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
       });
       setLoading(true);
     }
-    setInTransition(true);
+    if (history.length > 1) setInTransition(true);
   }, [currentPath, currentCase]);
 
   return (
@@ -96,7 +96,7 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
                   ? "router-out"
                   : "router-wait";
             };
-            requestAnimationFrame(set);
+            history.length > 1 ? requestAnimationFrame(set) : set();
           }}
           ontransitionend={({ currentTarget }) => {
             if (currentTarget.className === "router-out") {
