@@ -111,17 +111,6 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
           <slot name={(views[id] && views[id]?.for) || id}></slot>
         </section>
       ))}
-      {/* <section
-        part="loading"
-        ref={(node) => {
-          const set = () => {
-            node.className = loading ? "router-loading" : "";
-          };
-          transition ? requestAnimationFrame(set) : set();
-        }}
-      >
-        <slot name="loading"></slot>
-      </section> */}
     </host>
   );
 }
@@ -134,6 +123,9 @@ routerSwitch.props = {
   loading: {
     type: String,
     reflect: true,
+    event: {
+      type: "loading",
+    },
   },
 };
 

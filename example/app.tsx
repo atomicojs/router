@@ -32,9 +32,9 @@ render(
           <a href="/out">[to out]</a>
         </h1>
       </div>
-      {/* <div class="view" slot="loading">
+      <div class="view" slot="loading">
         <h1>loading...</h1>
-      </div> */}
+      </div>
     </RouterSwitch>
   </host>,
   document.body
