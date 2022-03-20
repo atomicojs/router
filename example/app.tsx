@@ -15,6 +15,7 @@ render(
       <RouterCase path="/" for="home"></RouterCase>
       <RouterCase
         path="/{folder}"
+        memo
         load={async (params) => {
           await delay(1000);
           return (

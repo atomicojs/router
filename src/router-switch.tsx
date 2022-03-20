@@ -22,18 +22,19 @@ function useHistory<T>(value: T, maxLength = 100) {
   return state.history;
 }
 
-function routerSwitch(props: Props<typeof routerSwitch>) {
+type Case = InstanceType<typeof RouterCase>;
+
+function routerSwitch() {
   const host = useHost();
 
   const refRouterCase = useRef();
 
-  const [transition, setTransition] = useState<string>();
   const [inTransition, setInTransition] = useProp<boolean>("inTransition");
   const [loading, setLoading] = useProp<string>("loading");
-  const [views] = useState(Object);
+  const [views] = useState<{ [view: string]: Case }>({});
+  const [memos] = useState<{ [path: string]: Promise<any> }>();
 
-  const slotRouterCase =
-    useSlot<InstanceType<typeof RouterCase>>(refRouterCase);
+  const slotRouterCase = useSlot<Case>(refRouterCase);
 
   const router = useMemo(
     () =>
@@ -47,10 +48,10 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
     slotRouterCase
   );
 
-  const [currentCase, , params] =
-    useRouter<InstanceType<typeof RouterCase>>(router);
+  const [currentCase, , params] = useRouter<Case>(router);
 
   const currentPath = getPath();
+
   const history = useHistory(currentPath, 2);
 
   views[currentPath] = currentCase;
@@ -59,21 +60,21 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
 
   useLayoutEffect(() => {
     if (!currentCase) return;
-    const { load } = currentCase;
+    const { load, memo } = currentCase;
     if (load) {
       Promise.resolve(load(params as any)).then((view) => {
-        const currentView = history.at(-1);
         setLoading(null);
         render(
           <host>
-            <div slot={currentView} class="router-view" key={currentView}>
+            <div slot={currentPath} class="router-view" key={currentPath}>
               {view}
             </div>
           </host>,
           host.current,
-          currentView
+          currentPath
         );
       });
+
       setLoading(currentPath);
     }
     if (history.length > 1) setInTransition(true);
