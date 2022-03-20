@@ -19,3 +19,15 @@ function component() {
   );
 }
 ```
+
+```jsx
+<RouterCase memo preload></RouterCase>
+```
+
+## memo
+
+permite que cada ruta resuleta, se llame una sola vez.
+
+## preload
+
+Al notar inactividad, routerSwitch ejecutara el metodo load para asi evitar la espera en caso de que la ruta se resuelva.

@@ -86,26 +86,23 @@ function routerSwitch(props: Props<typeof routerSwitch>) {
       {history.map((id, i) => (
         <section
           key={id}
-          part="view"
           ref={(node) => {
             const set = () => {
               const { length } = history;
-              node.className = loading
+              node.part.value = loading
                 ? length - 2 !== i
-                  ? "router-wait"
-                  : "router-in"
+                  ? "wait"
+                  : "in"
                 : length - 1 === i
-                ? "router-in"
+                ? "in"
                 : length - 2 === i && inTransition
-                ? "router-out"
-                : "router-wait";
+                ? "out"
+                : "wait";
             };
             history.length > 1 ? requestAnimationFrame(set) : set();
           }}
           ontransitionend={({ currentTarget }) => {
-            if (currentTarget.className === "router-out") {
-              setInTransition(false);
-            }
+            if (currentTarget.part.value === "out") setInTransition(false);
           }}
         >
           <slot name={(views[id] && views[id]?.for) || id}></slot>
@@ -140,33 +137,22 @@ routerSwitch.styles = css`
     width: 100%;
     height: 100%;
   }
-  [part="view"] {
+  [part="wait"] {
     transition: var(--router-transition-wait, 0s);
     opacity: var(--router-opacity-wait, 0);
     transform: var(--router-transform-wait);
   }
-  [part="loading"] {
-    transition: var(--router-transition-loading-wait, 0s);
-    opacity: var(--router-opacity-loading-wait, 0);
-    transform: var(--router-transform-loading-wait);
-  }
-  .router-in {
+  [part="in"] {
     position: relative;
     z-index: 1;
     transition: var(--router-transition-in, 0s);
     opacity: var(--router-opacity-in, 1);
     transform: var(--router-transform-in);
   }
-  .router-out {
+  [part="out"] {
     transition: var(--router-transition-out, 0s);
     opacity: var(--router-opacity-out, 0);
     transform: var(--router-transform-out);
-  }
-  .router-loading {
-    z-index: 2;
-    transition: var(--router-transition-loading-in, 0s);
-    opacity: var(--router-opacity-loading-in, 1);
-    transform: var(--router-transform-loading-in);
   }
 `;
 
