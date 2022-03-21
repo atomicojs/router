@@ -22,6 +22,7 @@ routerCase.props = {
     type: Function as Meta<(props: { [param: string]: "string" }) => any>,
   },
   memo: Boolean,
+  href: String,
 };
 
 export const RouterCase = c(routerCase);

@@ -1,5 +1,4 @@
 import {
-  Props,
   c,
   css,
   render,
@@ -12,15 +11,8 @@ import {
 } from "atomico";
 import { useRouter, useRedirect, getPath } from "@atomico/hooks/use-router";
 import { useSlot } from "@atomico/hooks/use-slot";
+import { useHistory } from "@atomico/hooks/use-history";
 import { RouterCase } from "./router-case";
-
-function useHistory<T>(value: T, maxLength = 100) {
-  const [state] = useState<{ history: T[] }>(() => ({ history: [] }));
-  if (state.history.at(-1) !== value) {
-    state.history = [...state.history, value].slice(maxLength * -1);
-  }
-  return state.history;
-}
 
 type Case = InstanceType<typeof RouterCase>;
 
@@ -56,11 +48,14 @@ function routerSwitch() {
 
   views[currentPath] = currentCase;
 
-  useRedirect(host);
+  useRedirect(host, { composed: true });
 
   useLayoutEffect(() => {
     if (!currentCase) return;
-    const { load, memo } = currentCase;
+    const { load, memo, href } = currentCase;
+    if (href) {
+      location.href = href;
+    }
     if (load) {
       const getLoad = () =>
         Promise.resolve(load(params as any)).then((view) => {

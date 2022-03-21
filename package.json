@@ -13,7 +13,7 @@
     "create-component": "scaff template/component-jsx src"
   },
   "dependencies": {
-    "@atomico/hooks": "^3.32.0",
+    "@atomico/hooks": "^3.33.1",
     "atomico": "^1.49.2"
   },
   "devDependencies": {
