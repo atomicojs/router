@@ -31,8 +31,8 @@ function routerSwitch() {
 
   const [inTransition, setInTransition] = useProp<boolean>("inTransition");
   const [loading, setLoading] = useProp<string>("loading");
-  const [views] = useState<{ [view: string]: Case }>({});
-  const [memos] = useState<{ [path: string]: Promise<any> }>();
+  const [views] = useState<{ [view: string]: Case }>(Object);
+  const [cache] = useState<{ [path: string]: Promise<any> }>(Object);
 
   const slotRouterCase = useSlot<Case>(refRouterCase);
 
@@ -62,8 +62,13 @@ function routerSwitch() {
     if (!currentCase) return;
     const { load, memo } = currentCase;
     if (load) {
-      Promise.resolve(load(params as any)).then((view) => {
-        setLoading(null);
+      const getLoad = () =>
+        Promise.resolve(load(params as any)).then((view) => {
+          setLoading(null);
+          return view;
+        });
+
+      const loadRender = (view: any) =>
         render(
           <host>
             <div slot={currentPath} class="router-view" key={currentPath}>
@@ -73,9 +78,16 @@ function routerSwitch() {
           host.current,
           currentPath
         );
-      });
 
-      setLoading(currentPath);
+      if (memo) {
+        if (cache[currentPath]) {
+          cache[currentPath].then(loadRender);
+        } else {
+          cache[currentPath] = getLoad();
+          cache[currentPath].then(loadRender);
+          setLoading(currentPath);
+        }
+      }
     }
     if (history.length > 1) setInTransition(true);
   }, [currentPath, currentCase]);
