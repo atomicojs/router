@@ -99,6 +99,7 @@ function routerSwitch() {
       {history.map((id, i) => (
         <section
           key={id}
+          part="wait"
           ref={(node) => {
             const set = () => {
               const { length } = history;
