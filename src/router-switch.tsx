@@ -7,6 +7,7 @@ import {
   useHost,
   useState,
   useProp,
+  DOMEvent,
   useLayoutEffect,
 } from "atomico";
 import { useRouter, useRedirect, getPath } from "@atomico/hooks/use-router";
@@ -88,7 +89,7 @@ function routerSwitch() {
   }, [currentPath, currentCase]);
 
   return (
-    <host shadowDom>
+    <host shadowDom case={currentCase}>
       <slot key="router-case" name="router-case" ref={refRouterCase}></slot>
       <slot key="router-content"></slot>
       {history.map((id, i) => (
@@ -131,6 +132,12 @@ routerSwitch.props = {
     reflect: true,
     event: {
       type: "loading",
+    },
+  },
+  case: {
+    type: HTMLElement,
+    event: {
+      type: "match",
     },
   },
 };
