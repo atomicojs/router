@@ -30,11 +30,16 @@ function routerSwitch() {
 
   const router = useMemo(
     () =>
-      slotRouterCase.reduce(
-        (router, routerCase) => ({
-          ...router,
-          [routerCase.path]: () => routerCase,
-        }),
+      slotRouterCase.reduce<{
+        [path: string]: () => Case;
+      }>(
+        (router, routerCase) =>
+          routerCase.path
+            ? {
+                ...router,
+                [routerCase.path]: () => routerCase,
+              }
+            : router,
         {}
       ),
     slotRouterCase
@@ -75,7 +80,7 @@ function routerSwitch() {
         );
 
       if (memo) {
-        if (cache[currentPath]) {
+        if (currentPath in cache) {
           cache[currentPath].then(loadRender);
         } else {
           cache[currentPath] = getLoad();
