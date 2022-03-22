@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@atomico/exports": "^0.23.0",
-    "@atomico/hooks": "^3.33.1",
+    "@atomico/hooks": "^3.33.2",
     "atomico": "^1.50.0"
   },
   "devDependencies": {
