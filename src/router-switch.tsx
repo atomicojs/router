@@ -7,7 +7,6 @@ import {
   useHost,
   useState,
   useProp,
-  DOMEvent,
   useLayoutEffect,
 } from "atomico";
 import { useRouter, useRedirect, getPath } from "@atomico/hooks/use-router";
