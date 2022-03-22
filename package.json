@@ -1,9 +1,17 @@
 {
   "name": "@atomico/router",
-  "description": "a repo to start with atomico",
+  "description": "powerful router for webcomponents",
   "version": "1.0.0",
-  "private": true,
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/atomicojs/router.git"
+  },
+  "author": "UpperCod",
+  "license": "MIT",
   "scripts": {
     "start": "vite",
     "build": "vite build",
@@ -13,6 +21,7 @@
     "create-component": "scaff template/component-jsx src"
   },
   "dependencies": {
+    "@atomico/exports": "^0.23.0",
     "@atomico/hooks": "^3.33.1",
     "atomico": "^1.49.2"
   },
