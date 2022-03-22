@@ -1,29 +1,35 @@
 {
-    "name": "@atomico/router",
-    "description": "a repo to start with atomico",
-    "version": "0.1.1-beta",
-    "exports": {
-        ".": "./dest/router.js"
-    },
-    "typings": "./router.d.ts",
-    "publishConfig": {
-        "access": "public"
-    },
-    "scripts": {
-        "start": "devserver dev src --jsxImportSource atomico",
-        "build": "devserver build src/router.js dest --jsxImportSource atomico --external atomico,atomico/jsx-runtime,@atomico/kit/use-router,@atomico/kit/use-render",
-        "prepare": "npm run build"
-    },
-    "dependencies": {
-        "@atomico/kit": "latest",
-        "atomico": "latest"
-    },
-    "devDependencies": {
-        "@devserver/build": "latest",
-        "@devserver/cli": "latest"
-    },
-    "prettier": {
-        "tabWidth": 4,
-        "singleQuote": false
-    }
+  "name": "@atomico/router",
+  "description": "powerful router for webcomponents",
+  "version": "1.0.0",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/atomicojs/router.git"
+  },
+  "author": "UpperCod",
+  "license": "MIT",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "test": "wtr src/**/*.test.jsx --node-resolve",
+    "exports": "exports src/router.ts --exports --types --main router",
+    "prepublishOnly": "npm run test && npm run exports"
+  },
+  "dependencies": {
+    "@atomico/exports": "^0.23.0",
+    "@atomico/hooks": "^3.33.1",
+    "atomico": "^1.50.0"
+  },
+  "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@uppercod/vite-meta-url": "latest",
+    "@uppercod/vite-meta-url-load-css": "latest",
+    "@web/test-runner": "^0.13.27",
+    "vite": "latest",
+    "vite-web-test-runner-plugin": "^0.1.0"
+  }
 }
