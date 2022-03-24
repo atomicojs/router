@@ -19,13 +19,11 @@ routerCase.props = {
     reflect: true,
   },
   load: {
-    type: Function as Meta<(props: { [param: string]: "string" }) => any>,
+    type: Function as Meta<(props: { [param: string]: string }) => any>,
   },
   memo: Boolean,
   href: String,
-  element: {
-    type: null as Meta<HTMLElement | string>,
-  },
+  element: null,
 };
 
 export const RouterCase = c(routerCase);

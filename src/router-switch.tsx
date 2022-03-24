@@ -69,7 +69,8 @@ function routerSwitch() {
     }
     if (load) {
       const getLoad = () =>
-        Promise.resolve(load(params as any)).then((view) => {
+        //@ts-ignore
+        Promise.resolve(load(params)).then((view) => {
           setLoading(null);
           return view;
         });
