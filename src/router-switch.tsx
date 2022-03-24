@@ -1,4 +1,6 @@
 import {
+  Props,
+  Meta,
   c,
   css,
   render,
@@ -57,9 +59,13 @@ function routerSwitch() {
 
   useLayoutEffect(() => {
     if (!currentCase) return;
-    const { load, memo, href } = currentCase;
+    let { load, memo, href, element } = currentCase;
     if (href) {
       location.href = href;
+    }
+    if (element && !load) {
+      let El = element as any;
+      load = async () => <El {...params}></El>;
     }
     if (load) {
       const getLoad = () =>
@@ -87,6 +93,8 @@ function routerSwitch() {
           cache[currentPath].then(loadRender);
           setLoading(currentPath);
         }
+      } else {
+        getLoad().then(loadRender);
       }
     }
     if (history.length > 1) setInTransition(true);

@@ -1,7 +1,11 @@
-import { render } from "atomico";
+import { c, render } from "atomico";
 import { RouterSwitch, RouterCase } from "../src/router";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const Example = c(() => <host>welcome!</host>);
+
+customElements.define("e-l", Example);
 
 render(
   <host>
@@ -12,7 +16,7 @@ render(
         <a href="/edit">edit</a>
         <a href="/config">config</a>
       </header>
-      <RouterCase path="/" for="home"></RouterCase>
+      <RouterCase path="/" element={Example}></RouterCase>
       <RouterCase
         path="/{folder}"
         memo
@@ -32,9 +36,6 @@ render(
           <a href="/users">[to users]</a>
           <a href="/out">[to out]</a>
         </h1>
-      </div>
-      <div class="view" slot="loading">
-        <h1>loading...</h1>
       </div>
     </RouterSwitch>
   </host>,
