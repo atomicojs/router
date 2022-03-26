@@ -16,7 +16,7 @@
     "start": "vite",
     "build": "vite build",
     "test": "wtr src/**/*.test.jsx --node-resolve",
-    "exports": "exports src/router.ts --exports --types --main router",
+    "exports": "exports src/router.ts --exports --types --analyzer --main router",
     "prepublishOnly": "npm run test && npm run exports"
   },
   "dependencies": {
