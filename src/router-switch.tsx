@@ -1,6 +1,5 @@
 import {
-  Props,
-  Meta,
+  Host,
   c,
   css,
   render,
@@ -18,7 +17,7 @@ import { RouterCase } from "./router-case";
 
 type Case = InstanceType<typeof RouterCase>;
 
-function routerSwitch() {
+function routerSwitch(): Host<{ onmatch: Event; onloading: Event }> {
   const host = useHost();
 
   const refRouterCase = useRef();
@@ -69,7 +68,6 @@ function routerSwitch() {
     }
     if (load) {
       const getLoad = () =>
-        //@ts-ignore
         Promise.resolve(load(params)).then((view) => {
           setLoading(null);
           return view;

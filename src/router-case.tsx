@@ -1,4 +1,4 @@
-import { c, Meta } from "atomico";
+import { c, Type } from "atomico";
 
 function routerCase() {
   return <host shadowDom></host>;
@@ -19,11 +19,11 @@ routerCase.props = {
     reflect: true,
   },
   load: {
-    type: Function as Meta<(props: { [param: string]: string }) => any>,
+    type: Function as Type<(props: { [param: string]: string }) => any>,
   },
   memo: Boolean,
   href: String,
-  element: null,
+  element: null as Type<string | HTMLElement>,
 };
 
 export const RouterCase = c(routerCase);
