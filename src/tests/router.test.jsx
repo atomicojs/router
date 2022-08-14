@@ -1,6 +1,6 @@
 import { fixture, asyncEventListener } from "atomico/test-dom";
 import { RouterSwitch, RouterCase } from "../router";
-import { expect } from "@esm-bundle/chai";
+import { expect, describe, it } from "vitest";
 
 describe("my test", () => {
   it("test match case", async () => {
@@ -13,8 +13,8 @@ describe("my test", () => {
       </RouterSwitch>
     );
 
-    const event = await asyncEventListener(node, "match");
+    const event = await asyncEventListener(node, "Match");
 
-    expect(event.target.case).to.equal(ref.current);
+    expect(event.target.case).toEqual(ref.current);
   });
 });

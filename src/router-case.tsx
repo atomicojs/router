@@ -24,6 +24,7 @@ routerCase.props = {
   memo: Boolean,
   href: String,
   element: null as Type<string | HTMLElement>,
+  destroy: Boolean,
 };
 
 export const RouterCase = c(routerCase);

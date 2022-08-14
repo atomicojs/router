@@ -1,29 +1,23 @@
 import {
   Host,
   c,
-  css,
   render,
   useRef,
   useMemo,
   useHost,
   useState,
-  useProp,
   useLayoutEffect,
 } from "atomico";
 import { useRouter, useRedirect, getPath } from "@atomico/hooks/use-router";
 import { useSlot } from "@atomico/hooks/use-slot";
-import { useHistory } from "@atomico/hooks/use-history";
 import { RouterCase } from "./router-case";
+import { consumer } from "@uppercod/consume-generator";
 
 type Case = InstanceType<typeof RouterCase>;
 
-function routerSwitch(): Host<{ onmatch: Event; onloading: Event }> {
+function routerSwitch(): Host<{ onMatch: Event }> {
   const host = useHost();
-
   const refRouterCase = useRef();
-
-  const [inTransition, setInTransition] = useProp<boolean>("inTransition");
-  const [loading, setLoading] = useProp<string>("loading");
   const [views] = useState<{ [view: string]: Case }>(Object);
   const [cache] = useState<{ [path: string]: Promise<any> }>(Object);
 
@@ -50,39 +44,49 @@ function routerSwitch(): Host<{ onmatch: Event; onloading: Event }> {
 
   const currentPath = getPath();
 
-  const history = useHistory(currentPath, 2);
-
   views[currentPath] = currentCase;
 
   useRedirect(host, { composed: true });
 
   useLayoutEffect(() => {
     if (!currentCase) return;
-    let { load, memo, href, element } = currentCase;
+    let cancel: boolean;
+    let { load, memo, href, element, destroy } = currentCase;
+
     if (href) {
       location.href = href;
     }
+
     if (element && !load) {
       let El = element as any;
       load = async () => <El {...params}></El>;
     }
-    if (load) {
-      const getLoad = () =>
-        Promise.resolve(load(params)).then((view) => {
-          setLoading(null);
-          return view;
-        });
 
-      const loadRender = (view: any) =>
-        render(
-          <host>
-            <div slot={currentPath} class="router-view" key={currentPath}>
-              {view}
-            </div>
-          </host>,
-          host.current,
-          currentPath
-        );
+    const loadRender = (view: any) =>
+      !cancel &&
+      render(
+        <host>
+          <div slot={currentPath} class="router-view" key={currentPath}>
+            {view}
+          </div>
+        </host>,
+        host.current,
+        currentPath
+      );
+
+    if (load) {
+      const getLoad = (): Promise<any> => {
+        let lastView: any;
+        return consumer(load, params, {
+          set(view) {
+            loadRender((lastView = view));
+            return params;
+          },
+          get() {
+            return params;
+          },
+        }).then(() => lastView);
+      };
 
       if (memo) {
         if (currentPath in cache) {
@@ -90,98 +94,36 @@ function routerSwitch(): Host<{ onmatch: Event; onloading: Event }> {
         } else {
           cache[currentPath] = getLoad();
           cache[currentPath].then(loadRender);
-          setLoading(currentPath);
         }
       } else {
         getLoad().then(loadRender);
       }
     }
-    if (history.length > 1) setInTransition(true);
+    return () => {
+      destroy && loadRender(null);
+      cancel = true;
+    };
   }, [currentPath, currentCase]);
 
   return (
     <host shadowDom case={currentCase}>
       <slot key="router-case" name="router-case" ref={refRouterCase}></slot>
       <slot key="router-content"></slot>
-      {history.map((id, i) => (
-        <section
-          key={id}
-          part="wait"
-          ref={(node) => {
-            const set = () => {
-              const { length } = history;
-              node.part.value = loading
-                ? length - 2 !== i
-                  ? "wait"
-                  : "in"
-                : length - 1 === i
-                ? "in"
-                : length - 2 === i && inTransition
-                ? "out"
-                : "wait";
-            };
-            history.length > 1 ? requestAnimationFrame(set) : set();
-          }}
-          ontransitionend={({ currentTarget }) => {
-            if (currentTarget.part.value === "out") setInTransition(false);
-          }}
-        >
-          <slot name={(views[id] && views[id]?.for) || id}></slot>
-        </section>
-      ))}
+      <slot
+        name={(views[currentPath] && views[currentPath]?.for) || currentPath}
+      ></slot>
     </host>
   );
 }
 
 routerSwitch.props = {
-  inTransition: {
-    type: Boolean,
-    reflect: true,
-  },
-  loading: {
-    type: String,
-    reflect: true,
-    event: {
-      type: "loading",
-    },
-  },
   case: {
     type: HTMLElement,
     event: {
-      type: "match",
+      type: "Match",
     },
   },
 };
-
-routerSwitch.styles = css`
-  :host([in-transition]) {
-    overflow: hidden;
-  }
-  section {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-  }
-  [part="wait"] {
-    transition: var(--router-transition-wait, 0s);
-    opacity: var(--router-opacity-wait, 0);
-    transform: var(--router-transform-wait);
-  }
-  [part="in"] {
-    position: relative;
-    z-index: 1;
-    transition: var(--router-transition-in, 0s);
-    opacity: var(--router-opacity-in, 1);
-    transform: var(--router-transform-in);
-  }
-  [part="out"] {
-    transition: var(--router-transition-out, 0s);
-    opacity: var(--router-opacity-out, 0);
-    transform: var(--router-transform-out);
-  }
-`;
 
 export const RouterSwitch = c(routerSwitch);
 
