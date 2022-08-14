@@ -16,7 +16,7 @@
     "start": "vite",
     "build": "vite build",
     "test": "vitest  run",
-    "exports": "exports src/* --exports --types --analyzer --main router",
+    "exports": "exports src/* --exports --types --analyzer --main router --watch",
     "prepublishOnly": "npm run test && npm run exports"
   },
   "dependencies": {
@@ -30,10 +30,11 @@
     "atomico": "^1.61.1"
   },
   "devDependencies": {
-    "@atomico/exports": "latest",
+    "@atomico/exports": "^0.36.1",
     "@atomico/tsconfig": "1.0.0",
-    "@atomico/vite": "latest",
+    "@atomico/vite": "^1.5.1",
     "happy-dom": "latest",
+    "typescript": "^4.7.4",
     "vite": "latest",
     "vitest": "latest"
   }
