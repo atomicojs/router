@@ -16,7 +16,7 @@
     "start": "vite",
     "build": "vite build",
     "test": "vitest  run",
-    "exports": "exports src/* --exports --types --analyzer --main router --watch",
+    "exports": "exports src/* --exports --types --analyzer --main router",
     "prepublishOnly": "npm run test && npm run exports"
   },
   "dependencies": {
