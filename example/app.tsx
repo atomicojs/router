@@ -1,6 +1,5 @@
 import { c, render } from "atomico";
 import { RouterSwitch, RouterCase } from "../src/router";
-
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const Example = c(() => <host>welcome!</host>);
@@ -20,8 +19,11 @@ render(
       <RouterCase
         path="/{folder}"
         memo
-        load={async (params) => {
+        load={async function* (params) {
+          yield <h1>Loading...</h1>;
+
           await delay(1000);
+
           return (
             <h1>
               welcome! ({JSON.stringify(params)}) <a href="/">to home</a>

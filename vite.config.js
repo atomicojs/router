@@ -1,21 +1,16 @@
-import pluginMetaUrl from "@uppercod/vite-meta-url";
-import loadCss from "@uppercod/vite-meta-url-load-css";
-/**@type {import("vite").UserConfig} */
+import atomico from "@atomico/vite";
+import { defineConfig } from "vite";
 
-const config = {
-  esbuild: {
-    jsxFactory: "_jsx",
-    jsxInject: `import {h as _jsx, css as _css} from 'atomico'`,
-  },
+export default defineConfig({
   build: {
     target: "esnext",
   },
+  test: {
+    environment: "happy-dom",
+  },
   plugins: [
-    pluginMetaUrl({
-      css: loadCss(),
-      md: true,
+    atomico({
+      cssLiterals: { postcss: true },
     }),
   ],
-};
-
-export default config;
+});

@@ -1,7 +1,7 @@
 {
   "name": "@atomico/router",
-  "description": "powerful router for webcomponents",
-  "version": "1.2.0",
+  "description": "powerful router for Webcomponents, React and Preact",
+  "version": "2.0.0",
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -15,22 +15,26 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "test": "wtr src/**/*.test.jsx --node-resolve",
+    "test": "vitest  run",
     "exports": "exports src/* --exports --types --analyzer --main router",
     "prepublishOnly": "npm run test && npm run exports"
   },
   "dependencies": {
-    "@atomico/hooks": "^3.33.2",
-    "atomico": "^1.51.0"
+    "@atomico/hooks": "^3.46.0",
+    "@uppercod/consume-generator": "^1.4.1",
+    "atomico": "^1.61.1"
+  },
+  "peerDependencies": {
+    "@atomico/hooks": "^3.46.0",
+    "@uppercod/consume-generator": "^1.4.1",
+    "atomico": "^1.61.1"
   },
   "devDependencies": {
-    "@atomico/exports": "^0.26.1",
-    "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@uppercod/vite-meta-url": "latest",
-    "@uppercod/vite-meta-url-load-css": "latest",
-    "@web/test-runner": "^0.13.27",
-    "typescript": "^4.6.2",
+    "@atomico/exports": "latest",
+    "@atomico/tsconfig": "1.0.0",
+    "@atomico/vite": "latest",
+    "happy-dom": "latest",
     "vite": "latest",
-    "vite-web-test-runner-plugin": "^0.1.0"
+    "vitest": "latest"
   }
 }
