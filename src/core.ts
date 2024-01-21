@@ -15,7 +15,8 @@ export type GetParams<
   : Params;
 
 export interface RouteConfig {
-  memo?: boolean;
+  cache?: boolean;
+  expires?: number;
 }
 
 export interface RouteCallback<Props = Record<string, string>> {
@@ -40,6 +41,7 @@ export interface RouteCycle {
   value: RouteResult;
   result: Promise<IteratorResult<any>>;
   promise: RoutePromise;
+  expires: number;
 }
 
 export const IgnoreResult = new Promise(() => {});
@@ -59,22 +61,28 @@ export class RoutePromise<Value = any> extends Promise<Value> {
     this.resolve = _resolve;
     this.reject = _reject;
     const controller = new AbortController();
-    this.abort = (clean = !route.config.memo) => clean && controller.abort();
+    this.abort = (clean = !route.config.cache) => clean && controller.abort();
     this.signal = controller.signal;
   }
 }
 
-export function createRouter() {
-  const routes: Record<string, RouteRecord> = {};
-  const cache: Record<string, RouteCycle> = {};
-  let lastCycle: RouteCycle;
-  const promises = new Set<RoutePromise>();
+export class Router {
+  private routes: Record<string, RouteRecord> = {};
+  private current: RouteCycle;
+  cache: Record<string, RouteCycle>;
+  promises: Set<RoutePromise>;
 
-  function on<P extends string>(
+  constructor(router?: Router) {
+    this.promises = new Set(router?.promises);
+    this.cache = { ...router?.cache };
+  }
+
+  on<P extends string>(
     path: P,
     callback: RouteCallback<GetParams<P>>,
     config: RouteConfig = {}
   ) {
+    const { routes } = this;
     routes[path] = routes[path] || {
       callback,
       config,
@@ -83,7 +91,41 @@ export function createRouter() {
     routes[path].callback = callback;
   }
 
-  function match(path: string): RouteMatch {
+  map<Value = any>(
+    path: string,
+    callback: (data: { done: boolean; value: Value }, path: string) => any
+  ): RoutePromise<any> | undefined {
+    const result = this.match(path);
+
+    if (result) {
+      const { params, route } = result;
+
+      const timeStamp = Date.now();
+
+      if (this.cache[path] && this.cache[path].expires < timeStamp) {
+        delete this.cache[path];
+      }
+
+      const cycle = this.cache[path] || this.createCycle(params, route);
+
+      if (route.config.cache) this.cache[path] = cycle;
+
+      this.current = cycle;
+
+      this.mapCycle(cycle, (data) => callback(data, result.path));
+
+      this.promises.add(cycle.promise);
+
+      return cycle.promise;
+    }
+  }
+
+  remove() {
+    this.promises.forEach((promise) => promise.abort(true));
+  }
+
+  private match(path: string): RouteMatch {
+    const { routes } = this;
     for (const prop in routes) {
       const route = routes[prop];
       const params = route.match(path);
@@ -91,8 +133,21 @@ export function createRouter() {
     }
   }
 
-  async function mapCycle(cycle: RouteCycle, callback: (param: any) => any) {
-    if (lastCycle !== cycle) {
+  private createCycle(
+    params: RouteMatch["params"],
+    route: RouteRecord
+  ): RouteCycle {
+    const routePromise = new RoutePromise(route);
+    return {
+      value: route.callback(params, routePromise.signal),
+      promise: routePromise,
+      result: undefined,
+      expires: Date.now() + route.config.expires || Number.MAX_SAFE_INTEGER,
+    };
+  }
+
+  private async mapCycle(cycle: RouteCycle, callback: (param: any) => any) {
+    if (this.current !== cycle) {
       cycle.promise.abort();
       return;
     }
@@ -100,7 +155,7 @@ export function createRouter() {
       if (cycle.result) {
         const resolvedResult = await cycle.result;
         if (resolvedResult.done) {
-          if (lastCycle === cycle) {
+          if (this.current === cycle) {
             cycle.promise.resolve(callback(resolvedResult));
           }
           cycle.promise.abort();
@@ -110,9 +165,9 @@ export function createRouter() {
       const result = cycle.value.next();
       cycle.result = result;
       const resolvedResult = await cycle.result;
-      if (lastCycle === cycle) {
+      if (this.current === cycle) {
         callback(resolvedResult);
-        return mapCycle(cycle, callback);
+        return this.mapCycle(cycle, callback);
       } else {
         cycle.promise.abort();
       }
@@ -120,45 +175,4 @@ export function createRouter() {
       cycle.promise.reject(e);
     }
   }
-
-  function createCycle(
-    params: RouteMatch["params"],
-    route: RouteRecord
-  ): RouteCycle {
-    const routePromise = new RoutePromise(route);
-    return {
-      value: route.callback(params, routePromise.signal),
-      promise: routePromise,
-      result: undefined,
-    };
-  }
-
-  function map<Value = any>(
-    path: string,
-    callback: (data: { done: boolean; value: Value }, path: string) => any
-  ): RoutePromise<any> | undefined {
-    const result = match(path);
-
-    if (result) {
-      const { params, route } = result;
-
-      const cycle = cache[path] || createCycle(params, route);
-
-      if (route.config.memo) cache[path] = cycle;
-
-      lastCycle = cycle;
-
-      mapCycle(cycle, (data) => callback(data, result.path));
-
-      promises.add(cycle.promise);
-
-      return cycle.promise;
-    }
-  }
-
-  function remove() {
-    promises.forEach((promise) => promise.abort(true));
-  }
-
-  return { on, map, remove };
 }

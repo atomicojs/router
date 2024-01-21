@@ -10,11 +10,12 @@ import {
   useContext,
   useProp,
   useState,
+  useEffect,
 } from "atomico";
 import { useRedirect, getPath } from "@atomico/hooks/use-router";
 import { useSlot } from "@atomico/hooks/use-slot";
 import { RouterCase } from "./router-case";
-import { createRouter } from "./core";
+import { Router } from "./core";
 import { createContext } from "atomico";
 import { useListener } from "@atomico/hooks";
 
@@ -25,6 +26,7 @@ const RouterProvider = createContext<{ value: string }>({ value: "" });
 function routerSwitch(): Host<{ onMatch: Event }> {
   const host = useHost();
   const refRouterCase = useRef();
+  const refCurrentRouter = useRef<Router>();
   const refGlobalThis = useRef(globalThis);
   const [currentPath, setCurrentPath] = useState("");
   const { value: parentPath } = useContext(RouterProvider);
@@ -34,7 +36,8 @@ function routerSwitch(): Host<{ onMatch: Event }> {
   const slotRouterCase = useSlot<Case>(refRouterCase);
 
   const router = useMemo(() => {
-    const router = createRouter();
+    const router = new Router(refCurrentRouter.current);
+    refCurrentRouter.current = router;
     const scopeParentPath = parentPath
       .replace(/\/({|\[)(\.){3}.+(]|})$/, "")
       .replace(
@@ -71,9 +74,7 @@ function routerSwitch(): Host<{ onMatch: Event }> {
       setCurrentPath(id);
       render(<host>{value}</host>, host.current, renderId);
     });
-    return () => {
-      routePromise && routePromise.abort();
-    };
+    return () => routePromise?.abort();
   }, [router, path]);
 
   const context = useMemo(
@@ -82,6 +83,9 @@ function routerSwitch(): Host<{ onMatch: Event }> {
     }),
     [currentPath]
   );
+
+  useEffect(() => () => refCurrentRouter.current.remove(), []);
+
   return (
     <host shadowDom $parentPath={parentPath}>
       <slot name="router-case" ref={refRouterCase}></slot>

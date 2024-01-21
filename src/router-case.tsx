@@ -1,4 +1,4 @@
-import { c, Type } from "atomico";
+import { c, Type, createType } from "atomico";
 
 function routerCase() {
   return <host shadowDom></host>;
@@ -23,7 +23,8 @@ routerCase.props = {
       (props: { [param: string]: string }, signal: AbortSignal) => any
     >,
   },
-  memo: Boolean,
+  cache: Boolean,
+  expires: Number,
   href: String,
   element: null as Type<string | HTMLElement>,
   destroy: Boolean,

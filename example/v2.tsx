@@ -54,9 +54,9 @@ const vdom = (
               <RouterSwitch id="child">
                 <RouterCase
                   path="/"
-                  memo
+                  cache
+                  expires={10000}
                   load={async function* (params, signal) {
-                    console.log(signal);
                     yield "Loading...";
                     await delay();
                     const { abilities, name } = await request(
