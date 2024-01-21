@@ -19,7 +19,9 @@ routerCase.props = {
     reflect: true,
   },
   load: {
-    type: Function as Type<(props: { [param: string]: string }) => any>,
+    type: Function as Type<
+      (props: { [param: string]: string }, signal: AbortSignal) => any
+    >,
   },
   memo: Boolean,
   href: String,

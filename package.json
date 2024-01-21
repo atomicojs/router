@@ -20,22 +20,20 @@
     "prepublishOnly": "npm run test && npm run exports"
   },
   "dependencies": {
-    "@atomico/hooks": "^3.46.0",
+    "@atomico/hooks": "^3.50.3",
     "@uppercod/consume-generator": "^1.4.1",
-    "atomico": "^1.61.1"
+    "atomico": "^1.75.2"
   },
   "peerDependencies": {
-    "@atomico/hooks": "^3.46.0",
-    "@uppercod/consume-generator": "^1.4.1",
-    "atomico": "^1.61.1"
+    "@uppercod/consume-generator": "^1.4.1"
   },
   "devDependencies": {
-    "@atomico/exports": "^0.36.1",
-    "@atomico/tsconfig": "1.0.0",
+    "@atomico/exports": "^1.13.1",
+    "@atomico/tsconfig": "^1.1.2",
     "@atomico/vite": "^1.5.1",
     "happy-dom": "latest",
     "typescript": "^4.7.4",
-    "vite": "latest",
-    "vitest": "latest"
+    "vite": "^5.0.11",
+    "vitest": "^1.2.0"
   }
 }

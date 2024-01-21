@@ -28,7 +28,7 @@ const vdom = (
         path="/"
         memo
         load={async function* () {
-          yield loading;
+          yield "Loading...";
           const { results } = await request("?limit=252");
           return (
             <div class="grid">
@@ -46,7 +46,7 @@ const vdom = (
         path="/{id}"
         memo
         load={async function* ({ id }) {
-          yield loading;
+          yield "Loading...";
           await delay();
           const { abilities, name } = await request(`/${id}`);
           return (

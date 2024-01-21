@@ -1,117 +1,93 @@
 import {
   Host,
   c,
+  css,
   render,
   useRef,
   useMemo,
   useHost,
-  useState,
   useLayoutEffect,
+  useContext,
+  useProp,
+  useState,
 } from "atomico";
-import { useRouter, useRedirect, getPath } from "@atomico/hooks/use-router";
+import { useRedirect, getPath } from "@atomico/hooks/use-router";
 import { useSlot } from "@atomico/hooks/use-slot";
 import { RouterCase } from "./router-case";
-import { consumer } from "@uppercod/consume-generator";
+import { createRouter } from "./core";
+import { createContext } from "atomico";
+import { useListener } from "@atomico/hooks";
 
 type Case = InstanceType<typeof RouterCase>;
+
+const RouterProvider = createContext<{ value: string }>({ value: "" });
 
 function routerSwitch(): Host<{ onMatch: Event }> {
   const host = useHost();
   const refRouterCase = useRef();
-  const [views] = useState<{ [view: string]: Case }>(Object);
-  const [cache] = useState<{ [path: string]: Promise<any> }>(Object);
+  const refGlobalThis = useRef(globalThis);
+  const [currentPath, setCurrentPath] = useState("");
+  const { value: parentPath } = useContext(RouterProvider);
+  const [path, setPath] = useState(getPath);
+  const [renderId] = useState(() => Symbol());
 
   const slotRouterCase = useSlot<Case>(refRouterCase);
 
-  const router = useMemo(
-    () =>
-      slotRouterCase.reduce<{
-        [path: string]: () => Case;
-      }>(
-        (router, routerCase) =>
-          routerCase.path
-            ? {
-                ...router,
-                [routerCase.path]: () => routerCase,
-              }
-            : router,
-        {}
-      ),
-    slotRouterCase
-  );
+  const router = useMemo(() => {
+    const router = createRouter();
+    const scopeParentPath = parentPath
+      .replace(/\/({|\[)(\.){3}.+(]|})$/, "")
+      .replace(
+        /({|\[)([\w\.]+)(]|})/,
+        (all, before, key, after) =>
+          `${before}parent${key[0].toUpperCase() + key.slice(1)}${after}`
+      );
+    slotRouterCase.map((routeCase) => {
+      router.on(
+        `${scopeParentPath}${
+          scopeParentPath && routeCase.path === "/" ? "" : routeCase.path
+        }`,
+        routeCase.load,
+        routeCase
+      );
+    });
 
-  const [currentCase, , params] = useRouter<Case>(router);
+    return router;
+  }, [...slotRouterCase, parentPath]);
 
-  const currentPath = getPath();
+  useRedirect(host, {
+    composed: true,
+    proxy(href) {
+      const currentEvent = event as Event;
+      currentEvent.stopPropagation();
+      return href;
+    },
+  });
 
-  views[currentPath] = currentCase;
-
-  useRedirect(host, { composed: true });
+  useListener(refGlobalThis, "popstate", () => setPath(getPath()));
 
   useLayoutEffect(() => {
-    if (!currentCase) return;
-    let cancel: boolean;
-    let { load, memo, href, element, destroy } = currentCase;
-
-    if (href) {
-      location.href = href;
-    }
-
-    if (element && !load) {
-      let El = element as any;
-      load = async () => <El {...params}></El>;
-    }
-
-    const loadRender = (view: any) =>
-      !cancel &&
-      render(
-        <host>
-          <div slot={currentPath} class="router-view" key={currentPath}>
-            {view}
-          </div>
-        </host>,
-        host.current,
-        currentPath
-      );
-
-    if (load) {
-      const getLoad = (): Promise<any> => {
-        let lastView: any;
-        return consumer(load, params, {
-          set(view) {
-            loadRender((lastView = view));
-            return params;
-          },
-          get() {
-            return params;
-          },
-        }).then(() => lastView);
-      };
-
-      if (memo) {
-        if (currentPath in cache) {
-          cache[currentPath].then(loadRender);
-        } else {
-          cache[currentPath] = getLoad();
-          cache[currentPath].then(loadRender);
-        }
-      } else {
-        getLoad().then(loadRender);
-      }
-    }
+    const routePromise = router.map(path, ({ value }, id) => {
+      setCurrentPath(id);
+      render(<host>{value}</host>, host.current, renderId);
+    });
     return () => {
-      destroy && loadRender(null);
-      cancel = true;
+      routePromise && routePromise.abort();
     };
-  }, [currentPath, currentCase]);
+  }, [router, path]);
 
+  const context = useMemo(
+    () => ({
+      value: currentPath,
+    }),
+    [currentPath]
+  );
   return (
-    <host shadowDom case={currentCase}>
-      <slot key="router-case" name="router-case" ref={refRouterCase}></slot>
-      <slot key="router-content"></slot>
-      <slot
-        name={(views[currentPath] && views[currentPath]?.for) || currentPath}
-      ></slot>
+    <host shadowDom $parentPath={parentPath}>
+      <slot name="router-case" ref={refRouterCase}></slot>
+      <RouterProvider value={context}>
+        <slot></slot>
+      </RouterProvider>
     </host>
   );
 }
@@ -125,6 +101,14 @@ routerSwitch.props = {
   },
 };
 
+routerSwitch.styles = css`
+  :host,
+  ::slotted([slot="view"]) {
+    display: contents;
+  }
+`;
+
 export const RouterSwitch = c(routerSwitch);
 
 customElements.define("router-switch", RouterSwitch);
+customElements.define("router-switch-provider", RouterProvider);
