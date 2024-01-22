@@ -4,34 +4,13 @@
 <Router>
   <RouterCase
     cache
+    expires={10000}
     path="/"
-    load={async function* ({ id }) {
+    load={async function* ({ id }, signal) {
       yield <Loading />;
-      const user = await getUserById();
+      const user = await getUserById(signal);
       return <User {...user} />;
     }}
   />
 </Router>
-```
-
-```tsx
-const route = new Router();
-
-route.on(
-  "/{id}",
-  async function* ({ id }) {
-    yield <Loading />;
-    const user = await getUserById(id);
-    return <User {...user} />;
-  },
-  { memo: true }
-);
-
-const route = router.match("/i");
-//
-const router = createRoute();
-
-router("/", () => {}, { memo: true });
-
-route("/");
 ```

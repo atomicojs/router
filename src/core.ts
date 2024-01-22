@@ -1,5 +1,4 @@
 import { createMatch, Match } from "@uppercod/exp-route";
-
 type Param<
   Prop extends string,
   Value extends string

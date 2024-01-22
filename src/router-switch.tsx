@@ -1,70 +1,62 @@
+import { useListener } from "@atomico/hooks";
+import { getPath, useRedirect } from "@atomico/hooks/use-router";
+import { useSlot } from "@atomico/hooks/use-slot";
+import { join, nested } from "./utils";
 import {
-  Host,
+  Props,
   c,
+  createContext,
   css,
   render,
-  useRef,
-  useMemo,
+  useContext,
+  useEffect,
   useHost,
   useLayoutEffect,
-  useContext,
-  useProp,
+  useMemo,
+  useRef,
   useState,
-  useEffect,
 } from "atomico";
-import { useRedirect, getPath } from "@atomico/hooks/use-router";
-import { useSlot } from "@atomico/hooks/use-slot";
-import { RouterCase } from "./router-case";
 import { Router } from "./core";
-import { createContext } from "atomico";
-import { useListener } from "@atomico/hooks";
+import { RouterCase } from "./router-case";
 
 type Case = InstanceType<typeof RouterCase>;
 
-const RouterProvider = createContext<{ value: string }>({ value: "" });
+const RouterProvider = createContext({
+  value: "",
+  base: "",
+});
 
-function routerSwitch(): Host<{ onMatch: Event }> {
+function routerSwitch({ base }: Props<typeof routerSwitch>) {
   const host = useHost();
   const refRouterCase = useRef();
   const refCurrentRouter = useRef<Router>();
   const refGlobalThis = useRef(globalThis);
   const [currentPath, setCurrentPath] = useState("");
-  const { value: parentPath } = useContext(RouterProvider);
+  const { value: parentPath, base: parentBase } = useContext(RouterProvider);
   const [path, setPath] = useState(getPath);
   const [renderId] = useState(() => Symbol());
 
   const slotRouterCase = useSlot<Case>(refRouterCase);
 
+  const currentBase = join(parentBase, base);
+
   const router = useMemo(() => {
     const router = new Router(refCurrentRouter.current);
     refCurrentRouter.current = router;
-    const scopeParentPath = parentPath
-      .replace(/\/({|\[)(\.){3}.+(]|})$/, "")
-      .replace(
-        /({|\[)([\w\.]+)(]|})/,
-        (all, before, key, after) =>
-          `${before}parent${key[0].toUpperCase() + key.slice(1)}${after}`
-      );
+    const scopeParentPath = nested(parentPath);
     slotRouterCase.map((routeCase) => {
       router.on(
-        `${scopeParentPath}${
-          scopeParentPath && routeCase.path === "/" ? "" : routeCase.path
-        }`,
+        join(currentBase, scopeParentPath, routeCase.path),
         routeCase.load,
         routeCase
       );
     });
 
     return router;
-  }, [...slotRouterCase, parentPath]);
+  }, [...slotRouterCase, parentPath, currentBase]);
 
   useRedirect(host, {
     composed: true,
-    proxy(href) {
-      const currentEvent = event as Event;
-      currentEvent.stopPropagation();
-      return href;
-    },
   });
 
   useListener(refGlobalThis, "popstate", () => setPath(getPath()));
@@ -80,14 +72,15 @@ function routerSwitch(): Host<{ onMatch: Event }> {
   const context = useMemo(
     () => ({
       value: currentPath,
+      base: currentBase,
     }),
-    [currentPath]
+    [currentPath, currentBase]
   );
 
   useEffect(() => () => refCurrentRouter.current.remove(), []);
 
   return (
-    <host shadowDom $parentPath={parentPath}>
+    <host shadowDom>
       <slot name="router-case" ref={refRouterCase}></slot>
       <RouterProvider value={context}>
         <slot></slot>
@@ -97,11 +90,9 @@ function routerSwitch(): Host<{ onMatch: Event }> {
 }
 
 routerSwitch.props = {
-  case: {
-    type: HTMLElement,
-    event: {
-      type: "Match",
-    },
+  base: {
+    type: String,
+    value: "",
   },
 };
 

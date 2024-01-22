@@ -26,7 +26,7 @@ const vdom = (
     <RouterSwitch id="parent">
       <RouterCase
         path="/"
-        memo
+        cache
         load={async function* () {
           yield "Loading...";
           const { results } = await request("?limit=252");
@@ -76,7 +76,7 @@ const vdom = (
                           <div class="pagination">
                             <a
                               class="button"
-                              href={`/${Number(params.parentId) + 1}`}
+                              href={`/${Number(params.parentId) - 1}`}
                             >
                               Prev
                             </a>
@@ -91,7 +91,7 @@ const vdom = (
                             </a>
                             <a
                               class="button"
-                              href={`/${Number(params.parentId) - 1}`}
+                              href={`/${Number(params.parentId) + 1}`}
                             >
                               Next
                             </a>
@@ -124,7 +124,7 @@ const vdom = (
                           <div class="pagination">
                             <a
                               class="button"
-                              href={`/${Number(params.parentId) + 1}`}
+                              href={`/${Number(params.parentId) - 1}`}
                             >
                               Prev
                             </a>
@@ -133,7 +133,7 @@ const vdom = (
                             </a>
                             <a
                               class="button"
-                              href={`/${Number(params.parentId) - 1}`}
+                              href={`/${Number(params.parentId) + 1}`}
                             >
                               Next
                             </a>
