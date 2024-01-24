@@ -1,7 +1,6 @@
 import { useListener } from "@atomico/hooks";
 import { getPath, useRedirect } from "@atomico/hooks/use-router";
 import { useSlot } from "@atomico/hooks/use-slot";
-import { join, nested } from "./utils";
 import {
   Props,
   c,
@@ -18,6 +17,7 @@ import {
 } from "atomico";
 import { Router } from "./core";
 import { RouterCase } from "./router-case";
+import { join, nested } from "./utils";
 
 type Case = InstanceType<typeof RouterCase>;
 
@@ -25,6 +25,13 @@ const RouterProvider = createContext({
   value: "",
   base: "",
 });
+
+type Params = Record<string, string>;
+
+const loadElement = (Element: any) =>
+  async function* (props: Params) {
+    return <Element {...props} />;
+  };
 
 function routerSwitch({ base }: Props<typeof routerSwitch>) {
   const host = useHost();
@@ -47,7 +54,7 @@ function routerSwitch({ base }: Props<typeof routerSwitch>) {
     slotRouterCase.map((routeCase) => {
       router.on(
         join(scopeParentPath, routeCase.path),
-        routeCase.load,
+        routeCase.element ? loadElement(routeCase.element) : routeCase.load,
         routeCase
       );
     });

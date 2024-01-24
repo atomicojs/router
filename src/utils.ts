@@ -12,7 +12,7 @@ export function join(...args: string[]) {
 
 export const nested = (path: string) =>
   path
-    .replace(/\/({|\[)(\.){3}.+(]|})$/, "")
+    .replace(/\/(({|\[)(\.){3}.+(]|})|(\.){3}|\*)$/, "")
     .replace(
       /({|\[)([\w\.]+)(]|})/,
       (all, before, key, after) =>

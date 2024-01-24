@@ -19,7 +19,7 @@ const Loading = () => (
   </div>
 );
 
-const delay = () => new Promise((resolve) => setTimeout(resolve, 500));
+const delay = () => new Promise((resolve) => setTimeout(resolve, 200));
 
 export default ({ base }: { base: string }) => (
   <host>
@@ -33,7 +33,7 @@ export default ({ base }: { base: string }) => (
           return (
             <div class="grid">
               {results.map(({ name }, id) => (
-                <a class="card" href={`/${id + 1}`}>
+                <a class="card" href={`/pokemon/${id + 1}`}>
                   {thumbnail(id + 1)}
                   <span>{name}</span>
                 </a>
@@ -43,51 +43,73 @@ export default ({ base }: { base: string }) => (
         }}
       />
       <RouterCase
-        path="/{id}/[...subpath]"
+        path="/pokemon/{id}/*"
         cache
         load={async function* ({ id }) {
           yield <Loading />;
           await delay();
-          const { abilities, name } = await request(`/${id}`);
+          const { name } = await request(`/${id}`);
           return (
             <div class="single">
               <div class="card">
                 {thumbnail(id)}
                 <h1>{name}</h1>
-                <a class="button" href={`/${id}`}>
-                  Detail
-                </a>
-                <a class="button" href={`/${id}/abilities`}>
-                  Skills
-                </a>
-                <ul>
-                  <RouterSwitch id="child">
+                <div class="pagination">
+                  <a class="button" href={`/pokemon/${id}`}>
+                    Detail
+                  </a>
+                  <a class="button" href={`/pokemon/${id}/abilities`}>
+                    Abilities
+                  </a>
+                </div>
+                <div>
+                  <RouterSwitch>
                     <RouterCase
                       path="/"
                       cache
                       load={async function* () {
-                        return "?";
+                        return (
+                          <>
+                            <h3>Detail</h3>
+                            <p>
+                              Lorem ipsum, dolor sit amet consectetur
+                              adipisicing elit. Quas suscipit voluptate
+                              veritatis alias doloremque id corrupti iure?
+                              Nulla, quo. Excepturi ad quasi tempora optio
+                              cumque veritatis nam ratione dolore voluptatem!
+                            </p>
+                          </>
+                        );
                       }}
                     ></RouterCase>
                     <RouterCase
                       path="/abilities"
                       cache
                       load={async function* () {
-                        return abilities.map(({ ability }) => (
-                          <li>{ability.name}</li>
-                        ));
+                        return (
+                          <>
+                            <h3>Abilities</h3>
+                            <p>
+                              Lorem ipsum, dolor sit amet consectetur
+                              adipisicing elit. Quas suscipit voluptate
+                              veritatis alias doloremque id corrupti iure?
+                              Nulla, quo. Excepturi ad quasi tempora optio
+                              cumque veritatis nam ratione dolore voluptatem!
+                            </p>
+                          </>
+                        );
                       }}
                     ></RouterCase>
                   </RouterSwitch>
-                </ul>
+                </div>
                 <div class="pagination">
-                  <a class="button" href={`/${Number(id) - 1 || 1}`}>
+                  <a class="button" href={`/pokemon/${Number(id) - 1 || 1}`}>
                     Prev
                   </a>
                   <a class="button" href="/">
                     Home
                   </a>
-                  <a class="button" href={`/${Number(id) + 1}`}>
+                  <a class="button" href={`/pokemon/${Number(id) + 1}`}>
                     Next
                   </a>
                 </div>
@@ -96,6 +118,7 @@ export default ({ base }: { base: string }) => (
           );
         }}
       />
+      <RouterCase path="/[...notFound]" element={"h1"}></RouterCase>
     </RouterSwitch>
   </host>
 );

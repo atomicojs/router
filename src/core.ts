@@ -1,5 +1,6 @@
 import { createMatch, Match } from "@uppercod/exp-route";
-type Param<
+
+export type Param<
   Prop extends string,
   Value extends string
 > = Prop extends `...${infer P}` ? Record<P, Value> : Record<Prop, Value>;
@@ -23,6 +24,7 @@ export interface RouteCallback<Props = Record<string, string>> {
 }
 
 export interface RouteRecord {
+  path: string;
   config: RouteConfig;
   callback: RouteCallback;
   match: Match<any>;
@@ -83,6 +85,7 @@ export class Router {
   ) {
     const { routes } = this;
     routes[path] = routes[path] || {
+      path,
       callback,
       config,
       match: createMatch(path),
@@ -101,13 +104,15 @@ export class Router {
 
       const timeStamp = Date.now();
 
-      if (this.cache[path] && this.cache[path].expires < timeStamp) {
-        delete this.cache[path];
+      const id = result.path + ":" + JSON.stringify(params);
+
+      if (this.cache[id] && this.cache[id].expires < timeStamp) {
+        delete this.cache[id];
       }
 
-      const cycle = this.cache[path] || this.createCycle(params, route);
+      const cycle = this.cache[id] || this.createCycle(params, route);
 
-      if (route.config.cache) this.cache[path] = cycle;
+      if (route.config.cache) this.cache[id] = cycle;
 
       this.current = cycle;
 
