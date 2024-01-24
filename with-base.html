@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@atomico/router</title>
+    <title>@atomico/router - base</title>
     <script type="module" src="./example/app.tsx"></script>
     <style>
       html,
@@ -64,7 +64,7 @@
     <script type="module">
       import view from "./example/app.tsx";
       import { render } from "atomico";
-      render(view({}), document.body);
+      render(view({ base: "/with-base" }), document.body);
     </script>
   </body>
 </html>

@@ -43,10 +43,10 @@ function routerSwitch({ base }: Props<typeof routerSwitch>) {
   const router = useMemo(() => {
     const router = new Router(refCurrentRouter.current);
     refCurrentRouter.current = router;
-    const scopeParentPath = nested(parentPath);
+    const scopeParentPath = join(nested(parentPath), base);
     slotRouterCase.map((routeCase) => {
       router.on(
-        join(currentBase, scopeParentPath, routeCase.path),
+        join(scopeParentPath, routeCase.path),
         routeCase.load,
         routeCase
       );
@@ -57,6 +57,9 @@ function routerSwitch({ base }: Props<typeof routerSwitch>) {
 
   useRedirect(host, {
     composed: true,
+    proxy(nextPath) {
+      return join(currentBase, nextPath);
+    },
   });
 
   useListener(refGlobalThis, "popstate", () => setPath(getPath()));
@@ -93,6 +96,7 @@ routerSwitch.props = {
   base: {
     type: String,
     value: "",
+    reflect: true,
   },
 };
 

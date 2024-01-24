@@ -13,7 +13,7 @@ const thumbnail = (id) => (
   />
 );
 
-const loading = () => (
+const Loading = () => (
   <div class="loading">
     <h1>Loading</h1>
   </div>
@@ -21,14 +21,14 @@ const loading = () => (
 
 const delay = () => new Promise((resolve) => setTimeout(resolve, 500));
 
-const vdom = (
+export default ({ base }: { base: string }) => (
   <host>
-    <RouterSwitch>
+    <RouterSwitch base={base} id="parent">
       <RouterCase
         path="/"
         cache
         load={async function* () {
-          yield "Loading...";
+          yield <Loading />;
           const { results } = await request("?limit=252");
           return (
             <div class="grid">
@@ -43,10 +43,10 @@ const vdom = (
         }}
       />
       <RouterCase
-        path="/{id}"
+        path="/{id}/[...subpath]"
         cache
         load={async function* ({ id }) {
-          yield "Loading...";
+          yield <Loading />;
           await delay();
           const { abilities, name } = await request(`/${id}`);
           return (
@@ -54,11 +54,31 @@ const vdom = (
               <div class="card">
                 {thumbnail(id)}
                 <h1>{name}</h1>
-                <h2>Abilities</h2>
+                <a class="button" href={`/${id}`}>
+                  Detail
+                </a>
+                <a class="button" href={`/${id}/abilities`}>
+                  Skills
+                </a>
                 <ul>
-                  {abilities.map(({ ability }) => (
-                    <li>{ability.name}</li>
-                  ))}
+                  <RouterSwitch id="child">
+                    <RouterCase
+                      path="/"
+                      cache
+                      load={async function* () {
+                        return "?";
+                      }}
+                    ></RouterCase>
+                    <RouterCase
+                      path="/abilities"
+                      cache
+                      load={async function* () {
+                        return abilities.map(({ ability }) => (
+                          <li>{ability.name}</li>
+                        ));
+                      }}
+                    ></RouterCase>
+                  </RouterSwitch>
                 </ul>
                 <div class="pagination">
                   <a class="button" href={`/${Number(id) - 1 || 1}`}>
@@ -79,5 +99,3 @@ const vdom = (
     </RouterSwitch>
   </host>
 );
-
-vdom.render(document.body);

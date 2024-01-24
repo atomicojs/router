@@ -1,16 +1,13 @@
 export function join(...args: string[]) {
-  let path = args
-    .filter((value) => value)
-    .join("/")
-    .replace(/\/+/g, "/");
-  while (true) {
-    const nextPath = path
-      .replace(/\/[^\/]+\/\.\.\//g, "/")
-      .replace(/\/+/g, "/");
-    if (nextPath === path) break;
-    path = nextPath;
-  }
-  return path;
+  return decodeURI(
+    new URL(
+      args
+        .filter((value) => value)
+        .join("/")
+        .replace(/\/+/g, "/"),
+      location.origin
+    ).pathname.replace(/(.+)\/$/, "$1")
+  );
 }
 
 export const nested = (path: string) =>
