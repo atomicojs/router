@@ -1,124 +1,66 @@
-import { RouterSwitch, RouterCase } from "../src/router";
-
-const request = (path) =>
-  fetch(`https://pokeapi.co/api/v2/pokemon${path}`).then((res) => res.json());
-
-const thumbnail = (id) => (
-  <img
-    width={96}
-    height={96}
-    loading="lazy"
-    class="thumbnail"
-    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`}
-  />
-);
-
-const Loading = () => (
-  <div class="loading">
-    <h1>Loading</h1>
-  </div>
-);
-
-const delay = () => new Promise((resolve) => setTimeout(resolve, 200));
+import { RouterCase, RouterSwitch } from "../src/router";
+import { getById } from "./api";
+import { Pokemon } from "./components/pokemon";
+import { PokemonTabs } from "./components/pokemon-tabs";
+import { PokemonImage } from "./components/pokemon-image";
 
 export default ({ base }: { base: string }) => (
   <host>
     <RouterSwitch base={base} id="parent">
+      <header></header>
+      <RouterCase path="/" cache load={async function* () {}} />
       <RouterCase
-        path="/"
+        path="/pokemon/{id}/[view]"
         cache
-        load={async function* () {
-          yield <Loading />;
-          const { results } = await request("?limit=252");
+        load={async function* (props) {
+          const pokemon = await getById(props.id);
+          const id = Number(props.id);
           return (
-            <div class="grid">
-              {results.map(({ name }, id) => (
-                <a class="card" href={`/pokemon/${id + 1}`}>
-                  {thumbnail(id + 1)}
-                  <span>{name}</span>
-                </a>
-              ))}
-            </div>
+            <Pokemon>
+              <PokemonImage
+                slot="image"
+                src={pokemon.sprites.other.home.front_default}
+              ></PokemonImage>
+              <h1>{pokemon.name}</h1>
+              <RouterSwitch>
+                <>
+                  <PokemonTabs>
+                    <a class={props.view == "" ? "active" : ""} href="/">
+                      Stats
+                    </a>
+                    <a
+                      class={props.view == "moves" ? "active" : ""}
+                      href="/moves"
+                    >
+                      Moves
+                    </a>
+                  </PokemonTabs>
+                </>
+                <RouterCase
+                  path="/"
+                  cache
+                  load={async function* ({ view }) {
+                    return "Stats";
+                  }}
+                />
+                <RouterCase
+                  path="/moves"
+                  cache
+                  load={async function* () {
+                    pokemon.moves.map(() => {});
+                    return "Moves";
+                  }}
+                />
+              </RouterSwitch>
+              <footer>
+                <a href={`../${id - 1}`}>Prev</a>
+                <a href={`/`}>Home</a>
+                <a href={`../${id + 1}`}>Next</a>
+              </footer>
+            </Pokemon>
           );
         }}
       />
-      <RouterCase
-        path="/pokemon/{id}/*"
-        cache
-        load={async function* ({ id }) {
-          yield <Loading />;
-          await delay();
-          const { name } = await request(`/${id}`);
-          return (
-            <div class="single">
-              <div class="card">
-                {thumbnail(id)}
-                <h1>{name}</h1>
-                <div class="pagination">
-                  <a class="button" href={`/pokemon/${id}`}>
-                    Detail
-                  </a>
-                  <a class="button" href={`/pokemon/${id}/abilities`}>
-                    Abilities
-                  </a>
-                </div>
-                <div>
-                  <RouterSwitch>
-                    <RouterCase
-                      path="/"
-                      cache
-                      load={async function* () {
-                        return (
-                          <>
-                            <h3>Detail</h3>
-                            <p>
-                              Lorem ipsum, dolor sit amet consectetur
-                              adipisicing elit. Quas suscipit voluptate
-                              veritatis alias doloremque id corrupti iure?
-                              Nulla, quo. Excepturi ad quasi tempora optio
-                              cumque veritatis nam ratione dolore voluptatem!
-                            </p>
-                          </>
-                        );
-                      }}
-                    ></RouterCase>
-                    <RouterCase
-                      path="/abilities"
-                      cache
-                      load={async function* () {
-                        return (
-                          <>
-                            <h3>Abilities</h3>
-                            <p>
-                              Lorem ipsum, dolor sit amet consectetur
-                              adipisicing elit. Quas suscipit voluptate
-                              veritatis alias doloremque id corrupti iure?
-                              Nulla, quo. Excepturi ad quasi tempora optio
-                              cumque veritatis nam ratione dolore voluptatem!
-                            </p>
-                          </>
-                        );
-                      }}
-                    ></RouterCase>
-                  </RouterSwitch>
-                </div>
-                <div class="pagination">
-                  <a class="button" href={`/pokemon/${Number(id) - 1 || 1}`}>
-                    Prev
-                  </a>
-                  <a class="button" href="/">
-                    Home
-                  </a>
-                  <a class="button" href={`/pokemon/${Number(id) + 1}`}>
-                    Next
-                  </a>
-                </div>
-              </div>
-            </div>
-          );
-        }}
-      />
-      <RouterCase path="/[...notFound]" element={"h1"}></RouterCase>
     </RouterSwitch>
   </host>
 );

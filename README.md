@@ -14,3 +14,32 @@
   />
 </Router>
 ```
+
+```
+
+Si entra a la ruta
+
+/site/[id]
+
+y anida un componente con ruta
+
+/[id]
+
+el listener debe ser para el hijo
+
+/site/[id]
+
+```
+
+```
+
+Si entra a la ruta
+
+/site/[id]/[view]
+
+y anida un componente con ruta
+
+/     = /site/*
+/[id] = /site/*/[id]
+
+```

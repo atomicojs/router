@@ -31,6 +31,7 @@
     "@atomico/exports": "^1.13.1",
     "@atomico/tsconfig": "^1.1.2",
     "@atomico/vite": "^2.17.8",
+    "@formkit/auto-animate": "^0.8.1",
     "happy-dom": "latest",
     "typescript": "^4.7.4",
     "vite": "^5.0.12",
