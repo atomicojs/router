@@ -39,6 +39,9 @@ pokemonImage.styles = css`
     position: relative;
     filter: drop-shadow(rgba(0, 0, 0, 0.05) 0 30px 60px);
   }
+  img {
+    display: block;
+  }
 `;
 
 export const PokemonImage = c(pokemonImage);

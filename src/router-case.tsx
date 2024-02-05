@@ -1,5 +1,5 @@
-import { c, Type, createType } from "atomico";
-
+import { Type, c } from "atomico";
+import { RouteCallback } from "./core";
 function routerCase() {
   return <host shadowDom></host>;
 }
@@ -15,11 +15,10 @@ routerCase.props = {
     reflect: true,
   },
   load: {
-    type: Function as Type<
-      (props: { [param: string]: string }, signal: AbortSignal) => any
-    >,
+    type: Function as Type<RouteCallback>,
   },
   cache: Boolean,
+  layer: Boolean,
   expires: Number,
   href: String,
   element: null as Type<string | HTMLElement>,

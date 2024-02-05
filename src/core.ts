@@ -1,4 +1,4 @@
-import { createMatch, Match } from "@uppercod/exp-route";
+import { createMatch } from "@uppercod/exp-route";
 
 export type Param<
   Prop extends string,
@@ -17,17 +17,18 @@ export type GetParams<
 export interface RouteConfig {
   cache?: boolean;
   expires?: number;
+  layer?: boolean;
 }
 
 export interface RouteCallback<Props = Record<string, string>> {
-  (params: Props, signal: AbortSignal): RouteResult;
+  (params: Props, signal: { signal: AbortSignal; layer: boolean }): RouteResult;
 }
 
 export interface RouteRecord {
   path: string;
   config: RouteConfig;
   callback: RouteCallback;
-  match: Match<any>;
+  match: any;
 }
 
 export interface RouteResult extends AsyncIterator<any> {}
@@ -72,7 +73,7 @@ export class Router {
   private current: RouteCycle;
   cache: Record<string, RouteCycle>;
   promises: Set<RoutePromise>;
-
+  disabled: boolean;
   constructor(router?: Router) {
     this.promises = new Set(router?.promises);
     this.cache = { ...router?.cache };
@@ -95,8 +96,12 @@ export class Router {
 
   map<Value = any>(
     path: string,
-    callback: (data: { done: boolean; value: Value }, path: string) => any
+    callback: (
+      data: { done: boolean; value: Value },
+      info: { path: string; layer: boolean }
+    ) => any
   ): RoutePromise<any> | undefined {
+    if (this.disabled) return;
     const result = this.match(path);
 
     if (result) {
@@ -116,7 +121,9 @@ export class Router {
 
       this.current = cycle;
 
-      this.mapCycle(cycle, (data) => callback(data, result.path));
+      this.mapCycle(cycle, (data) =>
+        callback(data, { path: result.path, layer: route.config.layer })
+      );
 
       this.promises.add(cycle.promise);
 
@@ -143,7 +150,10 @@ export class Router {
   ): RouteCycle {
     const routePromise = new RoutePromise(route);
     return {
-      value: route.callback(params, routePromise.signal),
+      value: route.callback(params, {
+        signal: routePromise.signal,
+        layer: route.config.layer,
+      }),
       promise: routePromise,
       result: undefined,
       expires: Date.now() + route.config.expires || Number.MAX_SAFE_INTEGER,
@@ -170,7 +180,7 @@ export class Router {
       cycle.result = result;
       const resolvedResult = await cycle.result;
       if (this.current === cycle) {
-        callback(resolvedResult);
+        if (!resolvedResult.done) callback(resolvedResult);
         return this.mapCycle(cycle, callback);
       } else {
         cycle.promise.abort();

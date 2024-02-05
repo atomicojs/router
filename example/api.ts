@@ -1,10 +1,41 @@
 const request = (path: string = "") =>
-  fetch(`https://pokeapi.co/api/v2/pokemon${path}`).then((res) => res.json());
+  fetch(`https://pokeapi.co/api/v2/${path}`).then((res) => res.json());
 
-export const getAll = () => request();
-export const getById = (id: string) => request("/" + id) as Promise<RootObject>;
+export const getAll = async (): Promise<Pokemons> => {
+  const response: PokemonsRequest = await request("pokemon?limit=151");
 
-export interface RootObject {
+  return {
+    ...response,
+    results: response.results.map((data) => ({
+      ...data,
+      id: Number(data.url.match(/\/(\d+)\/$/).at(1)),
+    })),
+  };
+};
+
+export const getById = (id: string): Promise<Pokemon> =>
+  request("pokemon/" + id);
+
+export const getEvolutionsById = (id: string) =>
+  request("evolution-chain/" + id);
+
+export const getImageById = (id: number) =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${id}.png`;
+
+interface PokemonsRequestResults {
+  name: string;
+  url: string;
+}
+export interface PokemonsRequest {
+  next: string;
+  previous: string;
+  results: PokemonsRequestResults[];
+}
+
+export interface Pokemons extends PokemonsRequest {
+  results: (PokemonsRequestResults & { id: number })[];
+}
+export interface Pokemon {
   abilities: Ability[];
   base_experience: number;
   forms: Species[];

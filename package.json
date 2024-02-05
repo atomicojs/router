@@ -22,6 +22,7 @@
   "dependencies": {
     "@atomico/hooks": "^3.50.3",
     "@uppercod/consume-generator": "^1.4.1",
+    "@uppercod/exp-route": "^1.4.0",
     "atomico": "^1.75.2"
   },
   "peerDependencies": {

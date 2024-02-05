@@ -38,6 +38,7 @@ function routerSwitch({ base }: Props<typeof routerSwitch>) {
   const refRouterCase = useRef();
   const refCurrentRouter = useRef<Router>();
   const refGlobalThis = useRef(globalThis);
+  const refLastLayer = useRef();
   const [childBase, setChildBase] = useState("");
   const { base: parentBase } = useContext(RouterProvider);
   const [path, setPath] = useState(getPath);
@@ -48,6 +49,9 @@ function routerSwitch({ base }: Props<typeof routerSwitch>) {
   const currentBase = joinRoute(parentBase, base);
 
   const router = useMemo(() => {
+    if (refCurrentRouter.current) {
+      refCurrentRouter.current.disabled = true;
+    }
     const router = new Router(refCurrentRouter.current);
     refCurrentRouter.current = router;
     slotRouterCase.map((routeCase) => {
@@ -57,18 +61,23 @@ function routerSwitch({ base }: Props<typeof routerSwitch>) {
         routeCase
       );
     });
-
     return router;
   }, [...slotRouterCase, currentBase]);
 
   useListener(refGlobalThis, "popstate", () => setPath(getPath()));
 
   useLayoutEffect(() => {
-    const routePromise = router.map(path, ({ value }, id) => {
+    const routePromise = router.map(path, ({ value }, { path: id, layer }) => {
       setChildBase(baseRoute(path, id));
-      render(<host>{value}</host>, host.current, renderId);
+      if (refLastLayer.current && refLastLayer.current != id) {
+        render(<host></host>, host.current, refLastLayer.current);
+      }
+      refLastLayer.current = layer ? id : null;
+      render(<host>{value}</host>, host.current, layer ? id : renderId);
     });
-    return () => routePromise?.abort();
+    return () => {
+      routePromise?.abort();
+    };
   }, [router, path]);
 
   const context = useMemo(
@@ -96,6 +105,8 @@ function routerSwitch({ base }: Props<typeof routerSwitch>) {
     }
     event.preventDefault();
     event.stopImmediatePropagation();
+
+    if (!href) return;
 
     redirect(
       href.startsWith("//")
