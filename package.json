@@ -16,17 +16,16 @@
     "start": "vite",
     "build": "vite build",
     "test": "vitest  run",
-    "exports": "exports src/* --exports --types --analyzer --main router",
-    "prepublishOnly": "npm run test && npm run exports"
+    "build:types": "tsc",
+    "build:compile": "library \"src/**/*\"",
+    "build:exports": "exports \"lib/**/*\" \"types/**/*\" --main router",
+    "build:pkg": "npm run build:types && npm run build:compile && npm run build:exports",
+    "prepublishOnly": "build:pkg"
   },
   "dependencies": {
     "@atomico/hooks": "^3.50.3",
-    "@uppercod/consume-generator": "^1.4.1",
     "@uppercod/exp-route": "^1.4.0",
     "atomico": "^1.75.2"
-  },
-  "peerDependencies": {
-    "@uppercod/consume-generator": "^1.4.1"
   },
   "devDependencies": {
     "@atomico/exports": "^1.13.1",
