@@ -23,7 +23,7 @@
     "prepublishOnly": "build:pkg"
   },
   "dependencies": {
-    "@atomico/hooks": "^3.50.3",
+    "@atomico/hooks": "^3.50.4",
     "@uppercod/exp-route": "^1.4.1",
     "atomico": "^1.75.2"
   },
