@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@atomico/hooks": "^3.50.3",
-    "@uppercod/exp-route": "^1.4.0",
+    "@uppercod/exp-route": "^1.4.1",
     "atomico": "^1.75.2"
   },
   "devDependencies": {

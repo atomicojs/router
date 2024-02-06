@@ -1,5 +1,5 @@
 import { useListener } from "@atomico/hooks";
-import { getPath, redirect, useRedirect } from "@atomico/hooks/use-router";
+import { getPath, redirect } from "@atomico/hooks/use-router";
 import { useSlot } from "@atomico/hooks/use-slot";
 import {
   DOMListener,
@@ -18,7 +18,7 @@ import {
 } from "atomico";
 import { Router } from "./core";
 import { RouterCase } from "./router-case";
-import { joinRoute, nestRoute, baseRoute } from "./utils";
+import { baseRoute, joinRoute } from "./utils";
 
 type Case = InstanceType<typeof RouterCase>;
 
