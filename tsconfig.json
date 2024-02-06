@@ -3,6 +3,7 @@
   "include": ["src/**/*"],
   "exclude": ["src/tests/**/*"],
   "compilerOptions": {
-    "outDir": "types"
+    "outDir": "dist",
+    "emitDeclarationOnly": false
   }
 }

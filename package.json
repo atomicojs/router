@@ -16,10 +16,9 @@
     "start": "vite",
     "build": "vite build",
     "test": "vitest  run",
-    "build:types": "tsc",
-    "build:compile": "library \"src/**/*\"",
-    "build:exports": "exports \"lib/**/*\" \"types/**/*\" --main router",
-    "build:pkg": "npm run build:types && npm run build:compile && npm run build:exports",
+    "build:compile": "tsc",
+    "build:exports": "exports \"dist/**/*\" --main router",
+    "build:pkg": "npm run build:compile && npm run build:exports",
     "prepublishOnly": "build:pkg"
   },
   "dependencies": {
@@ -28,7 +27,7 @@
     "atomico": "^1.75.2"
   },
   "devDependencies": {
-    "@atomico/exports": "^1.13.1",
+    "@atomico/exports": "^1.13.2",
     "@atomico/tsconfig": "^1.1.2",
     "@atomico/vite": "^2.17.8",
     "@formkit/auto-animate": "^0.8.1",
