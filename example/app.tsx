@@ -39,6 +39,7 @@ export default ({ base }: { base: string }) => (
           cache
           layer
           load={async function* (props, { layer }) {
+            yield <Pokemon layer={layer} loading />;
             const pokemon = await getById(props.id);
             const id = Number(props.id);
             return (

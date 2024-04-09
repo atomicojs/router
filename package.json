@@ -18,18 +18,18 @@
     "test": "vitest  run",
     "build:compile": "tsc",
     "build:exports": "exports \"dist/**/*\" --main router",
-    "build:pkg": "npm run build:compile && npm run build:exports",
-    "prepublishOnly": "build:pkg"
+    "prepublishOnly": "run build:* -s"
   },
   "dependencies": {
     "@atomico/hooks": "^3.50.4",
     "@uppercod/exp-route": "^1.4.1",
-    "atomico": "^1.75.2"
+    "atomico": "^1.78.2"
   },
   "devDependencies": {
     "@atomico/exports": "^1.13.2",
+    "@atomico/run": "^0.14.2",
     "@atomico/tsconfig": "^1.1.2",
-    "@atomico/vite": "^2.17.8",
+    "@atomico/vite": "^2.17.9",
     "@formkit/auto-animate": "^0.8.1",
     "happy-dom": "latest",
     "typescript": "^5.3.3",
