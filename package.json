@@ -1,7 +1,7 @@
 {
   "name": "@atomico/router",
   "description": "powerful router for Webcomponents, React and Preact",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "type": "module",
   "publishConfig": {
     "access": "public"
