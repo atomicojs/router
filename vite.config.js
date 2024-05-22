@@ -6,11 +6,12 @@ export default defineConfig({
     target: "esnext",
   },
   test: {
-    environment: "happy-dom",
+    environment: "jsdom",
   },
   plugins: [
     atomico({
       cssLiterals: { postcss: true },
+      vitest: true,
     }),
   ],
 });

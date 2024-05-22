@@ -1,63 +1,63 @@
-import { RouterCase, RouterSwitch } from "../src/router";
-import { getById, getAll, getImageById } from "./api";
-import { Pokemon } from "./components/pokemon";
-import { PokemonTabs } from "./components/pokemon-tabs";
-import { PokemonImage } from "./components/pokemon-image";
-import { PokemonType } from "./components/pokemon-type";
 import autoAnimate from "@formkit/auto-animate";
+import { c, useSuspense } from "atomico";
+import { RouterCase, RouterSwitch } from "../src";
+import { getAll, getById, getImageById } from "./api";
+import { Pokemon } from "./components/pokemon";
+import { PokemonImage } from "./components/pokemon-image";
+import { PokemonTabs } from "./components/pokemon-tabs";
+import { PokemonType } from "./components/pokemon-type";
 import * as Icon from "./icons";
 
-export default ({ base }: { base: string }) => (
-  <host>
-    <div class="phone">
-      <RouterSwitch base={base} id="parent" ref={autoAnimate}>
-        <header></header>
-        <RouterCase
-          path="/[id]"
-          cache
-          load={async function* ({ id }) {
-            const { results } = await getAll();
-            return (
-              <div class="grid scroll">
-                {results.map(({ name, id }) => (
-                  <a href={`/pokemon/${id}`}>
-                    <Pokemon thumbnail>
-                      <PokemonImage
-                        slot="image"
-                        src={getImageById(id)}
-                      ></PokemonImage>
-                      <h3 class="text-capital">{name}</h3>
-                    </Pokemon>
-                  </a>
-                ))}
-              </div>
-            );
-          }}
-        />
-        <RouterCase
-          path="/pokemon/{id}/[view]"
-          cache
-          layer
-          load={async function* (props, { layer }) {
-            yield <Pokemon layer={layer} loading />;
-            const pokemon = await getById(props.id);
-            const id = Number(props.id);
-            return (
-              <Pokemon layer={layer}>
-                <PokemonImage
-                  slot="image"
-                  src={getImageById(id)}
-                ></PokemonImage>
-                <header class="header">
-                  <h1 class="text-capital">{pokemon.name}</h1>
-                  <div class="row">
-                    {pokemon.types.map(({ type }) => (
-                      <PokemonType type={type.name}></PokemonType>
-                    ))}
-                  </div>
-                </header>
-                <RouterSwitch id="sub">
-                  <>
+const PokemonApp = c(() => {
+  const promises = useSuspense();
+  return (
+    <host>
+      <div class="phone">
+        <RouterSwitch id="parent" ref={autoAnimate}>
+          <RouterCase
+            path="/"
+            cache
+            load={async function ({ id }) {
+              const { results } = await getAll();
+              console.log(results.length);
+              return (
+                <div class="grid ">
+                  {results.map(({ name, id }) => (
+                    <a href={`/pokemon/${id}`}>
+                      <Pokemon thumbnail>
+                        <PokemonImage
+                          slot="image"
+                          src={getImageById(id)}
+                        ></PokemonImage>
+                        <h3 class="text-capital">{name}</h3>
+                      </Pokemon>
+                    </a>
+                  ))}
+                </div>
+              );
+            }}
+          />
+          <RouterCase
+            path="/pokemon/{id}/[view]"
+            load={async function (props) {
+              const pokemon = await getById(props.id);
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+              const id = Number(props.id);
+              return (
+                <Pokemon>
+                  <PokemonImage
+                    slot="image"
+                    src={getImageById(id)}
+                  ></PokemonImage>
+                  <header class="header">
+                    <h1 class="text-capital">{pokemon.name}</h1>
+                    <div class="row">
+                      {pokemon.types.map(({ type }) => (
+                        <PokemonType type={type.name}></PokemonType>
+                      ))}
+                    </div>
+                  </header>
+                  <RouterSwitch base={`/pokemon/${props.id}`}>
                     <PokemonTabs>
                       <a class={props.view == "" ? "active" : ""} href="/">
                         Stats
@@ -66,59 +66,59 @@ export default ({ base }: { base: string }) => (
                         class={props.view == "moves" ? "active" : ""}
                         href="/moves"
                       >
-                        Moves
+                        Movesx
                       </a>
                     </PokemonTabs>
-                  </>
-                  <RouterCase
-                    path="/"
-                    cache
-                    load={async function* ({ view }) {
-                      return (
-                        <div class="content">
-                          <strong>Stats:</strong> Lorem ipsum dolor sit amet
-                          consectetur adipiscing elit lectus nullam, donec
-                          penatibus vehicula orci habitant urna integer posuere,
-                          est morbi etiam conubia scelerisque lacinia magna
-                          odio. Natoque ornare congue varius aenean potenti
-                          nullam placerat pellentesque cursus.
-                        </div>
-                      );
-                    }}
-                  />
-                  <RouterCase
-                    path="/moves"
-                    cache
-                    load={async function* () {
-                      return (
-                        <div class="content">
-                          <strong>Moves:</strong> Lorem ipsum dolor sit amet
-                          consectetur adipiscing elit lectus nullam, donec
-                          penatibus vehicula orci habitant urna integer posuere,
-                          est morbi etiam conubia scelerisque lacinia magna
-                          odio. Natoque ornare congue varius aenean potenti
-                          nullam placerat pellentesque cursus.
-                        </div>
-                      );
-                    }}
-                  />
-                </RouterSwitch>
-                <footer class="row">
-                  <a class="link-icon" href={`../${id - 1}`}>
-                    <Icon.Left />
-                  </a>
-                  <a class="link-icon" href={`/`}>
-                    <Icon.Home />
-                  </a>
-                  <a class="link-icon" href={`../${id + 1}`}>
-                    <Icon.Right />
-                  </a>
-                </footer>
-              </Pokemon>
-            );
-          }}
-        />
-      </RouterSwitch>
-    </div>
-  </host>
-);
+                    <RouterCase
+                      path="/"
+                      load={function () {
+                        return (
+                          <div class="content">
+                            <strong>Stats:</strong> Lorem ipsum dolor sit amet
+                            consectetur adipiscing elit lectus nullam, donec
+                            penatibus vehicula orci habitant urna integer
+                            posuere, est morbi etiam conubia scelerisque lacinia
+                            magna odio. Natoque ornare congue varius aenean
+                            potenti nullam placerat pellentesque cursus.
+                          </div>
+                        );
+                      }}
+                    />
+                    <RouterCase
+                      path="/moves"
+                      load={function () {
+                        return (
+                          <div class="content">
+                            <strong>Moves:</strong> Lorem ipsum dolor sit amet
+                            consectetur adipiscing elit lectus nullam, donec
+                            penatibus vehicula orci habitant urna integer
+                            posuere, est morbi etiam conubia scelerisque lacinia
+                            magna odio. Natoque ornare congue varius aenean
+                            potenti nullam placerat pellentesque cursus.
+                          </div>
+                        );
+                      }}
+                    />
+                  </RouterSwitch>
+                  <footer class="row">
+                    <a class="link-icon" href={`/pokemon/${id - 1}`}>
+                      <Icon.Left />
+                    </a>
+                    <a class="link-icon" href={`/`}>
+                      <Icon.Home />
+                    </a>
+                    <a class="link-icon" href={`/pokemon/${id + 1}`}>
+                      <Icon.Right />
+                    </a>
+                  </footer>
+                </Pokemon>
+              );
+            }}
+          />
+        </RouterSwitch>
+      </div>
+    </host>
+  );
+});
+
+customElements.define("pokemon-app", PokemonApp);
