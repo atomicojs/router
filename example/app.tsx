@@ -15,11 +15,10 @@ const PokemonApp = c(() => {
       <div class="phone">
         <RouterSwitch id="parent" ref={autoAnimate}>
           <RouterCase
-            path="/"
+            default
             cache
             load={async function ({ id }) {
               const { results } = await getAll();
-              console.log(results.length);
               return (
                 <div class="grid ">
                   {results.map(({ name, id }) => (
@@ -66,20 +65,20 @@ const PokemonApp = c(() => {
                         class={props.view == "moves" ? "active" : ""}
                         href="/moves"
                       >
-                        Movesx
+                        Moves
                       </a>
                     </PokemonTabs>
                     <RouterCase
-                      path="/"
+                      default
                       load={function () {
                         return (
                           <div class="content">
-                            <strong>Stats:</strong> Lorem ipsum dolor sit amet
-                            consectetur adipiscing elit lectus nullam, donec
-                            penatibus vehicula orci habitant urna integer
-                            posuere, est morbi etiam conubia scelerisque lacinia
-                            magna odio. Natoque ornare congue varius aenean
-                            potenti nullam placerat pellentesque cursus.
+                            <strong>Stats: {pokemon.name}</strong> Lorem ipsum
+                            dolor sit amet consectetur adipiscing elit lectus
+                            nullam, donec penatibus vehicula orci habitant urna
+                            integer posuere, est morbi etiam conubia scelerisque
+                            lacinia magna odio. Natoque ornare congue varius
+                            aenean potenti nullam placerat pellentesque cursus.
                           </div>
                         );
                       }}
