@@ -11,19 +11,21 @@ export const RouterSwitch = c(
     const router = useMemo(() => {
       const cache = {};
       const router = {};
-      slots.forEach((slot) => {
-        const path = joinPath(base, slot.path);
-        router[path] = (params: any, { id }: { id: string }) => {
-          cache[id] = cache[id] || slot.load(params);
-          return cache[id];
-        };
-      });
+      slots
+        .sort((slot) => (slot.default ? 0 : -1))
+        .forEach((slot) => {
+          const path = slot.default ? "/[...any]" : joinPath(base, slot.path);
+          router[path] = (params: any, { id }: { id: string }) => {
+            cache[id] = cache[id] || slot.load(params);
+            return cache[id];
+          };
+        });
       return router;
     }, [...slots, base]);
 
     const route = useRouter(router, router);
-    console.log(route?.id);
-    const result = useAsync(async (id: string) => route?.result, [route?.id]);
+
+    const result = useAsync(async (result) => result, [route?.result]);
 
     useRender(() => result, [result]);
 
@@ -95,11 +97,12 @@ export const RouterCase = c(
       },
       load: {
         type: Function,
-        value: (params: Params): any => undefined,
+        value: (params: Record<string, string>): any => undefined,
       },
       element: {
         type: HTMLElement,
       },
+      default: Boolean,
     },
   }
 );
