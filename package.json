@@ -35,5 +35,11 @@
     "typescript": "^5.3.3",
     "vite": "^5.2.8",
     "vitest": "^1.4.0"
+  },
+  "prettier": {
+      "tabWidth": 4,
+      "singleQuote": false,
+      "endOfLine": "lf",
+      "trailingComma": "none"
   }
 }
