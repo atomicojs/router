@@ -17,7 +17,7 @@
         "build": "vite build",
         "test": "vitest",
         "build:compile": "tsc",
-        "build:exports": "exports \"dist/**/*\" --main router",
+        "build:exports": "exports \"dist/**/*\"",
         "build:test": "vitest run",
         "prepublishOnly": "run build:* -s"
     },
@@ -41,5 +41,53 @@
         "singleQuote": false,
         "endOfLine": "lf",
         "trailingComma": "none"
+    },
+    "main": "dist/router.js",
+    "module": "dist/router.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        "./core": {
+            "types": "./dist/core.d.ts",
+            "default": "./dist/core.js"
+        },
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./router-case": {
+            "types": "./dist/router-case.d.ts",
+            "default": "./dist/router-case.js"
+        },
+        "./router-switch": {
+            "types": "./dist/router-switch.d.ts",
+            "default": "./dist/router-switch.js"
+        },
+        "./router": {
+            "types": "./dist/router.d.ts",
+            "default": "./dist/router.js"
+        },
+        "./utils": {
+            "types": "./dist/utils.d.ts",
+            "default": "./dist/utils.js"
+        }
+    },
+    "typesVersions": {
+        "*": {
+            "core": [
+                "dist/core.d.ts"
+            ],
+            "router-case": [
+                "dist/router-case.d.ts"
+            ],
+            "router-switch": [
+                "dist/router-switch.d.ts"
+            ],
+            "router": [
+                "dist/router.d.ts"
+            ],
+            "utils": [
+                "dist/utils.d.ts"
+            ]
+        }
     }
 }
