@@ -1,10 +1,20 @@
-import { useRender, useSlot } from "@atomico/hooks";
+import { useSlot } from "@atomico/hooks";
 import { redirect, useRouter } from "@atomico/use-router";
-import { c, css, useAsync, useMemo, useRef } from "atomico";
+import {
+  c,
+  css,
+  render,
+  useAsync,
+  useEffect,
+  useMemo,
+  useRef,
+  useHost,
+} from "atomico";
 import { joinPath } from "./utils";
 
 export const RouterSwitch = c(
   ({ base }) => {
+    const host = useHost();
     const ref = useRef();
     const slots = useSlot<typeof RouterCase>(ref);
 
@@ -17,17 +27,36 @@ export const RouterSwitch = c(
           const path = slot.default ? "/[...any]" : joinPath(base, slot.path);
           router[path] = (params: any, { id }: { id: string }) => {
             cache[id] = cache[id] || slot.load(params);
-            return cache[id];
+            return [cache[id], slot];
           };
         });
       return router;
     }, [...slots, base]);
 
-    const route = useRouter(router, router);
+    const route = useRouter<[any, InstanceType<typeof RouterCase>]>(
+      router,
+      router
+    );
 
-    const result = useAsync(async (result) => result, [route?.result]);
+    const result = useAsync(
+      async (result) => {
+        if (!result) return;
+        const [promise] = result;
+        return promise;
+      },
+      [route?.result]
+    );
 
-    useRender(() => result, [result]);
+    // useRender(() => result, [result]);
+    useEffect(() => {
+      if (!result) return;
+      const [, slot] = route.result;
+      render(
+        <host>{result}</host>,
+        host.current,
+        slot.stream ? route?.id : "router"
+      );
+    }, [result]);
 
     return (
       <host
@@ -103,6 +132,7 @@ export const RouterCase = c(
         type: HTMLElement,
       },
       default: Boolean,
+      stream: Boolean,
     },
   }
 );
