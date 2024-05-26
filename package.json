@@ -18,6 +18,7 @@
         "test": "vitest",
         "build:compile": "tsc",
         "build:exports": "exports \"dist/**/*\" --main router",
+        "build:test": "vitest run",
         "prepublishOnly": "run build:* -s"
     },
     "dependencies": {
