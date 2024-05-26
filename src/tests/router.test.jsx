@@ -1,6 +1,6 @@
-import { fixture } from "atomico/test-dom";
-import { describe, it } from "vitest";
-import { RouterCase, RouterSwitch } from "../router";
+import { asyncEventListener, fixture } from "atomico/test-dom";
+import { describe, it, expect } from "vitest";
+import { RouterCase, RouterSwitch } from "../";
 
 describe("my test", () => {
     it("test match case", async () => {
@@ -13,8 +13,9 @@ describe("my test", () => {
         );
 
         await node.updated;
-        // const event = await asyncEventListener(node, "Match");
 
-        // expect(event.target.case).toEqual(ref.current);
+        await asyncEventListener(node, "Render");
+
+        expect(node.textContent).toEqual("welcome");
     });
 });

@@ -8,15 +8,18 @@ import {
     useEffect,
     useMemo,
     useRef,
-    useHost
+    useHost,
+    useEvent,
+    Host
 } from "atomico";
 import { joinPath } from "./utils";
 
 export const RouterSwitch = c(
-    ({ base }) => {
+    ({ base }): Host<{ onRender: Event }> => {
         const host = useHost();
         const ref = useRef();
         const slots = useSlot<typeof RouterCase>(ref);
+        const dispatch = useEvent("Render");
 
         const router = useMemo(() => {
             const cache = {};
@@ -58,6 +61,7 @@ export const RouterSwitch = c(
                 host.current,
                 slot.stream ? route?.id : "router"
             );
+            dispatch();
         }, [result]);
 
         return (
@@ -84,10 +88,8 @@ export const RouterSwitch = c(
                     } catch {}
                 }}
             >
-                <slot name="header" />
                 <slot name="router-case" ref={ref} />
                 <slot />
-                <slot name="footer" />
             </host>
         );
     },
